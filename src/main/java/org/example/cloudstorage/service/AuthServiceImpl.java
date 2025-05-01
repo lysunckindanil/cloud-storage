@@ -30,7 +30,6 @@ public class AuthServiceImpl implements AuthService {
                 UsernamePasswordAuthenticationToken.unauthenticated(user.getUsername(), user.getPassword());
 
         Authentication authentication = authenticationManager.authenticate(token);
-        System.out.println(authentication.isAuthenticated());
         setAuthenticationContext(authentication);
         return ((CustomUserDetails) authentication.getPrincipal()).getUser();
     }

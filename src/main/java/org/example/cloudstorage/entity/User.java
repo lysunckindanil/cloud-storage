@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -31,4 +32,16 @@ public class User implements Serializable {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(username, user.username) && Objects.equals(password, user.password) && role == user.role;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(username, password, role);
+    }
 }
