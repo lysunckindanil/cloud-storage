@@ -1,22 +1,24 @@
 package org.example.cloudstorage.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.cloudstorage.config.security.CustomUserDetails;
 import org.example.cloudstorage.entity.Role;
 import org.example.cloudstorage.entity.User;
 import org.example.cloudstorage.exception.UserWithThisNameAlreadyExistsException;
 import org.example.cloudstorage.repo.UserRepository;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService, UserDetailsService {
+public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
 
     @Override
     public User register(User user) {
@@ -28,12 +30,5 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         return user;
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username)
-                .map(CustomUserDetails::new)
-                .orElseThrow(() -> new UsernameNotFoundException(username));
     }
 }
