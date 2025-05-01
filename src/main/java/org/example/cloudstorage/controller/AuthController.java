@@ -1,0 +1,40 @@
+package org.example.cloudstorage.controller;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.example.cloudstorage.dto.user.UserLoginRequest;
+import org.example.cloudstorage.dto.user.UserLoginResponseDto;
+import org.example.cloudstorage.dto.user.UserRegisterRequest;
+import org.example.cloudstorage.dto.user.UserRegisterResponseDto;
+import org.example.cloudstorage.entity.User;
+import org.example.cloudstorage.service.AuthService;
+import org.example.cloudstorage.service.UserService;
+import org.example.cloudstorage.util.UserMapper;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RequiredArgsConstructor
+@RestController
+@RequestMapping("/auth")
+public class AuthController {
+
+    private final UserService userService;
+    private final AuthService authService;
+    private final UserMapper userMapper;
+
+    @PostMapping("/sign-up")
+    public UserRegisterResponseDto signup(@RequestBody @Valid UserRegisterRequest request) {
+        User user = userService.register(userMapper.toUser(request));
+        authService.putUserInContextAsAuthenticated(user);
+        return new UserRegisterResponseDto(user.getUsername());
+    }
+
+    @PostMapping("/sign-in")
+    public UserLoginResponseDto signin(@RequestBody @Valid UserLoginRequest request) {
+        User user = authService.authenticateUser(userMapper.toUser(request));
+        return new UserLoginResponseDto(user.getUsername());
+    }
+
+}
