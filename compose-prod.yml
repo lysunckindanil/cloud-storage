@@ -8,6 +8,18 @@ services:
   postgres:
     image: postgres:15
     environment:
-      POSTGRES_DB: cloud-storage
+      POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+  webapp:
+    image: zloymumu/spring-boot-starter-parent.cloud-storage:0.0.1-SNAPSHOT
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    restart: always
+    ports:
+      - "80:8080"

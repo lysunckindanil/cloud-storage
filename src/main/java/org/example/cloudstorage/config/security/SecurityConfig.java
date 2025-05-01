@@ -22,6 +22,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .exceptionHandling(
+                        exception ->
+                                exception.authenticationEntryPoint((request, response, ex)
+                                        -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED)
+                                )
+                )
                 .securityContext(context -> context
                         .securityContextRepository(securityContextRepository())
                 )
