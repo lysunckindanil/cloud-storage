@@ -1,5 +1,6 @@
 package org.example.cloudstorage.config.security;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,6 +23,10 @@ public class SecurityConfig {
                 .securityContext(context -> context
                         .securityContextRepository(securityContextRepository())
                 )
+                .logout(logout -> logout
+                        .logoutUrl("/auth/sign-out")
+                        .logoutSuccessHandler(((request, response, authentication)
+                                -> response.setStatus(HttpServletResponse.SC_NO_CONTENT))))
                 .httpBasic(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
