@@ -7,6 +7,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
+import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
+import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -22,24 +25,33 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .exceptionHandling(
-                        exception ->
-                                exception.authenticationEntryPoint((request, response, ex)
-                                        -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED)
-                                )
-                )
-                .securityContext(context -> context
-                        .securityContextRepository(securityContextRepository())
-                )
-                .logout(logout -> logout
-                        .logoutUrl("/auth/sign-out")
-                        .logoutSuccessHandler(((request, response, authentication)
-                                -> response.setStatus(HttpServletResponse.SC_NO_CONTENT))))
+                .securityContext(context -> context.securityContextRepository(contextRepo()))
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/auth/sign-in", "/auth/sign-up").anonymous()
-                        .anyRequest().authenticated());
+                .exceptionHandling(this::exceptionHandlingConf)
+                .authorizeHttpRequests(this::requestsMatchersConf)
+                .logout(this::logoutConf);
         return http.build();
+    }
+
+    private void logoutConf(LogoutConfigurer<HttpSecurity> http) {
+        http
+                .logoutUrl("/auth/sign-out")
+                .logoutSuccessHandler((
+                        (request, response, authentication)
+                                -> response.setStatus(HttpServletResponse.SC_NO_CONTENT)));
+    }
+
+    private void requestsMatchersConf(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry authorize) {
+        authorize
+                .requestMatchers("/auth/sign-in", "/auth/sign-up").anonymous()
+                .anyRequest().authenticated();
+    }
+
+    private void exceptionHandlingConf(ExceptionHandlingConfigurer configurer) {
+        configurer.authenticationEntryPoint(
+                (request, response, ex)
+                        -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED)
+        );
     }
 
     @Bean
@@ -53,7 +65,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityContextRepository securityContextRepository() {
+    public SecurityContextRepository contextRepo() {
         return new HttpSessionSecurityContextRepository();
     }
 }
