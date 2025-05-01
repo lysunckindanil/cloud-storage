@@ -10,6 +10,8 @@ import org.example.cloudstorage.entity.User;
 import org.example.cloudstorage.service.AuthService;
 import org.example.cloudstorage.service.UserService;
 import org.example.cloudstorage.util.UserMapper;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,16 +27,15 @@ public class AuthController {
     private final UserMapper userMapper;
 
     @PostMapping("/sign-up")
-    public UserRegisterResponseDto signup(@RequestBody @Valid UserRegisterRequest request) {
+    public ResponseEntity<UserRegisterResponseDto> signup(@RequestBody @Valid UserRegisterRequest request) {
         User user = userService.register(userMapper.toUser(request));
-        authService.putUserInContextAsAuthenticated(user);
-        return new UserRegisterResponseDto(user.getUsername());
+        authService.putUserInContextWithoutAuthentication(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new UserRegisterResponseDto(user.getUsername()));
     }
 
     @PostMapping("/sign-in")
-    public UserLoginResponseDto signin(@RequestBody @Valid UserLoginRequest request) {
-        User user = authService.authenticateUser(userMapper.toUser(request));
-        return new UserLoginResponseDto(user.getUsername());
+    public ResponseEntity<UserLoginResponseDto> signin(@RequestBody @Valid UserLoginRequest request) {
+        User user = authService.putUserInContextWithAuthentication(userMapper.toUser(request));
+        return ResponseEntity.ok(new UserLoginResponseDto(user.getUsername()));
     }
-
 }

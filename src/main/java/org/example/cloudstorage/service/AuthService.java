@@ -3,7 +3,7 @@ package org.example.cloudstorage.service;
 import org.example.cloudstorage.entity.User;
 
 public interface AuthService {
-    User authenticateUser(User user);
+    User putUserInContextWithAuthentication(User user);
 
-    void putUserInContextAsAuthenticated(User user);
+    void putUserInContextWithoutAuthentication(User user);
 }
