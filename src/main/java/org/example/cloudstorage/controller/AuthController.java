@@ -3,9 +3,8 @@ package org.example.cloudstorage.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.cloudstorage.dto.user.UserLoginRequest;
-import org.example.cloudstorage.dto.user.UserLoginResponseDto;
 import org.example.cloudstorage.dto.user.UserRegisterRequest;
-import org.example.cloudstorage.dto.user.UserRegisterResponseDto;
+import org.example.cloudstorage.dto.user.UsernameResponseDto;
 import org.example.cloudstorage.entity.User;
 import org.example.cloudstorage.service.AuthService;
 import org.example.cloudstorage.service.UserService;
@@ -27,15 +26,15 @@ public class AuthController {
     private final UserMapper userMapper;
 
     @PostMapping("/sign-up")
-    public ResponseEntity<UserRegisterResponseDto> signup(@RequestBody @Valid UserRegisterRequest request) {
+    public ResponseEntity<UsernameResponseDto> signup(@RequestBody @Valid UserRegisterRequest request) {
         User user = userService.register(userMapper.toUser(request));
         authService.putUserInContextWithoutAuthentication(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new UserRegisterResponseDto(user.getUsername()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new UsernameResponseDto(user.getUsername()));
     }
 
     @PostMapping("/sign-in")
-    public ResponseEntity<UserLoginResponseDto> signin(@RequestBody @Valid UserLoginRequest request) {
+    public ResponseEntity<UsernameResponseDto> signin(@RequestBody @Valid UserLoginRequest request) {
         User user = authService.putUserInContextWithAuthentication(userMapper.toUser(request));
-        return ResponseEntity.ok(new UserLoginResponseDto(user.getUsername()));
+        return ResponseEntity.ok(new UsernameResponseDto(user.getUsername()));
     }
 }
