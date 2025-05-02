@@ -22,15 +22,36 @@ spec:
                 name: cloud-storage-config
             - secretRef:
                 name: cloud-storage-secrets
+          env:
+            - name: POSTGRES_HOST
+              value: cloud-storage-postgres
+            - name: REDIS_HOST
+              value: cloud-storage-redis
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: cloud-storage-service
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector:
     app: cloud-storage-app
   ports:
     - port: 80
       targetPort: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cloud-storage-ingress
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: cloud-storage-service
+                port:
+                  number: 80

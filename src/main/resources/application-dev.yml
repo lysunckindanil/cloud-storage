@@ -1,11 +1,10 @@
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/${POSTGRES_DB}
   config:
     import: optional:file:.env[.properties]
   jpa:
     hibernate:
       ddl-auto: validate
+    show-sql: true
 logging:
   level:
     org:
