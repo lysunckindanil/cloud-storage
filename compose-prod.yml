@@ -13,7 +13,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
   webapp:
-    image: zloymumu/spring-boot-starter-parent.cloud-storage:0.0.1-SNAPSHOT
+    image: zloymumu/cloud-storage:0.0.1-SNAPSHOT
     environment:
       SPRING_PROFILES_ACTIVE: prod
       POSTGRES_DB: ${POSTGRES_DB}
