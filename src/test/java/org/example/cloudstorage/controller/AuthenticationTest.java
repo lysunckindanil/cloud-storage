@@ -1,6 +1,8 @@
 package org.example.cloudstorage.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.cloudstorage.config.PostgresContainerConfig;
+import org.example.cloudstorage.config.RedisContainerConfig;
 import org.example.cloudstorage.dto.user.UserLoginRequest;
 import org.example.cloudstorage.dto.user.UserRegisterRequest;
 import org.example.cloudstorage.entity.User;
@@ -13,16 +15,12 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.utility.DockerImageName;
 
 import java.util.stream.Stream;
 
@@ -36,6 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ActiveProfiles("test")
 @SpringBootTest
+@Import({PostgresContainerConfig.class, RedisContainerConfig.class})
 @AutoConfigureMockMvc
 @Transactional
 class AuthenticationTest {
@@ -48,16 +47,6 @@ class AuthenticationTest {
     @Autowired
     MockMvc mvc;
 
-    @ServiceConnection
-    @Container
-    public static GenericContainer<?> redis = new GenericContainer<>(
-            DockerImageName.parse("redis:7.0-alpine"))
-            .withExposedPorts(6379);
-
-    @ServiceConnection
-    @Container
-    public static PostgreSQLContainer postgres = new PostgreSQLContainer(
-            DockerImageName.parse("postgres:15-alpine"));
 
     static class Stub {
         static final String USERNAME = "username";
