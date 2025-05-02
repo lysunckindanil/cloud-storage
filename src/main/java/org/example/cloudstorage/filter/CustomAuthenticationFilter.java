@@ -8,8 +8,6 @@ import org.example.cloudstorage.config.security.CustomUserDetails;
 import org.example.cloudstorage.dto.user.UserLoginRequest;
 import org.example.cloudstorage.dto.user.UsernameResponseDto;
 import org.example.cloudstorage.exception.CustomAuthenticationValidationException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,8 +32,10 @@ public class CustomAuthenticationFilter extends AbstractAuthenticationProcessing
     private final ObjectMapper objectMapper;
     private static final AntPathRequestMatcher AUTHENTICATION_ANT_PATH_REQUEST_MATCHER = new AntPathRequestMatcher("/auth/sign-in", "POST");
 
-    public CustomAuthenticationFilter(ObjectMapper objectMapper) {
+    public CustomAuthenticationFilter(ObjectMapper objectMapper, AuthenticationManager authenticationManager, SecurityContextRepository contextRepository) {
         super(AUTHENTICATION_ANT_PATH_REQUEST_MATCHER);
+        this.setAuthenticationManager(authenticationManager);
+        this.setSecurityContextRepository(contextRepository);
         this.setAuthenticationSuccessHandler();
         this.setAuthenticationFailureHandler();
         this.objectMapper = objectMapper;
@@ -94,20 +94,5 @@ public class CustomAuthenticationFilter extends AbstractAuthenticationProcessing
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             objectMapper.writeValue(response.getWriter(), problemDetail);
         });
-    }
-
-
-    @Lazy
-    @Autowired
-    @Override
-    public void setAuthenticationManager(AuthenticationManager authenticationManager) {
-        super.setAuthenticationManager(authenticationManager);
-    }
-
-    @Lazy
-    @Autowired
-    @Override
-    public void setSecurityContextRepository(SecurityContextRepository securityContextRepository) {
-        super.setSecurityContextRepository(securityContextRepository);
     }
 }
