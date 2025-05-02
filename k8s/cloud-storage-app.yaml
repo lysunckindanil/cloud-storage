@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloud-storage-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloud-storage-app
+  template:
+    metadata:
+      labels:
+        app: cloud-storage-app
+    spec:
+      containers:
+        - name: app
+          image: zloymumu/cloud-storage:0.0.1-SNAPSHOT
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: cloud-storage-config
+            - secretRef:
+                name: cloud-storage-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloud-storage-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: cloud-storage-app
+  ports:
+    - port: 80
+      targetPort: 8080
