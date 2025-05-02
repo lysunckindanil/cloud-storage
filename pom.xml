@@ -127,7 +127,7 @@
                 <configuration>
                     <image>
                         <name>
-                            docker.io/${docker.username}/${project.artifactId}.${project.artifactId}:${project.version}
+                            docker.io/${docker.username}/${project.artifactId}:${project.version}
                         </name>
                     </image>
                     <excludes>
