@@ -1,8 +1,9 @@
 package org.example.cloudstorage.exception;
 
-public class UserWithThisNameAlreadyExistsException extends RuntimeException {
+import org.springframework.security.authentication.AuthenticationServiceException;
+
+public class UserWithThisNameAlreadyExistsException extends AuthenticationServiceException {
     public UserWithThisNameAlreadyExistsException(String message) {
         super(message);
     }
-
 }

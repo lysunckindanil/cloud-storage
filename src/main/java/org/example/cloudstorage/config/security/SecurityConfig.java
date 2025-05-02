@@ -1,31 +1,36 @@
 package org.example.cloudstorage.config.security;
 
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.example.cloudstorage.filter.CustomAuthenticationFilter;
+import org.example.cloudstorage.filter.RegistrationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 
 @EnableRedisHttpSession
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
+    private final CustomAuthenticationFilter customAuthenticationFilter;
+    private final RegistrationFilter registrationFilter;
+    private final SecurityContextRepository contextRepo;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .securityContext(context -> context.securityContextRepository(contextRepo()))
+                .addFilterAt(customAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAt(registrationFilter, UsernamePasswordAuthenticationFilter.class)
+                .securityContext(context -> context.securityContextRepository(contextRepo))
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(this::exceptionHandlingConf)
                 .authorizeHttpRequests(this::requestsMatchersConf)
@@ -54,18 +59,5 @@ public class SecurityConfig {
         );
     }
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
-    }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public SecurityContextRepository contextRepo() {
-        return new HttpSessionSecurityContextRepository();
-    }
 }

@@ -16,7 +16,6 @@ public class GlobalExceptionAdvice {
         return wrapToProblemDetail(e.getMessage(), HttpStatus.CONFLICT);
     }
 
-
     @ExceptionHandler(BindException.class)
     public ProblemDetail handleBindException(BindException e) {
         return wrapToProblemDetail(
@@ -25,6 +24,11 @@ public class GlobalExceptionAdvice {
                         .map(error -> "%s %s".formatted(error.getField(), error.getDefaultMessage()))
                         .collect(Collectors.joining(", ")),
                 HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ProblemDetail handleInternalServerError(Exception e) {
+        return wrapToProblemDetail("Internal Server Error: " + e.getClass(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private static ProblemDetail wrapToProblemDetail(String message, HttpStatus status) {
