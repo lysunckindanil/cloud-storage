@@ -17,7 +17,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
@@ -57,7 +56,6 @@ public class CustomAuthenticationFilter extends AbstractAuthenticationProcessing
                             loginRequest.getUsername(),
                             loginRequest.getPassword());
 
-            authRequest.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             return getAuthenticationManager().authenticate(authRequest);
         } catch (JsonProcessingException e) {
             throw new CustomAuthenticationValidationException("Unsupported JSON format");
