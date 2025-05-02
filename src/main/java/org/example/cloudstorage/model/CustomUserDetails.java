@@ -1,4 +1,4 @@
-package org.example.cloudstorage.config.security;
+package org.example.cloudstorage.model;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

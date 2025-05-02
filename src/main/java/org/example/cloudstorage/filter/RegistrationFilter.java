@@ -4,13 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.example.cloudstorage.config.security.CustomUserDetails;
 import org.example.cloudstorage.dto.user.UserRegisterRequest;
 import org.example.cloudstorage.dto.user.UsernameResponseDto;
 import org.example.cloudstorage.exception.CustomAuthenticationValidationException;
 import org.example.cloudstorage.exception.UserWithThisNameAlreadyExistsException;
+import org.example.cloudstorage.mapper.UserMapper;
+import org.example.cloudstorage.model.CustomUserDetails;
 import org.example.cloudstorage.service.UserService;
-import org.example.cloudstorage.util.UserMapper;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,7 +36,8 @@ public class RegistrationFilter extends AbstractAuthenticationProcessingFilter {
     private final UserService userService;
     private static final AntPathRequestMatcher AUTHENTICATION_ANT_PATH_REQUEST_MATCHER = new AntPathRequestMatcher("/auth/sign-up", "POST");
 
-    public RegistrationFilter(SecurityContextRepository contextRepository, AuthenticationManager authenticationManager, ObjectMapper objectMapper, UserService userService, UserMapper userMapper) {
+    public RegistrationFilter(SecurityContextRepository contextRepository, AuthenticationManager authenticationManager,
+                              ObjectMapper objectMapper, UserService userService, UserMapper userMapper) {
         super(AUTHENTICATION_ANT_PATH_REQUEST_MATCHER);
         this.setSecurityContextRepository(contextRepository);
         this.setAuthenticationManager(authenticationManager);
@@ -54,12 +56,15 @@ public class RegistrationFilter extends AbstractAuthenticationProcessingFilter {
 
         try (InputStream inputStream = request.getInputStream()) {
             UserRegisterRequest registerRequest = objectMapper.readValue(inputStream, UserRegisterRequest.class);
+
             validate(registerRequest);
+
             CustomUserDetails userDetails = new CustomUserDetails(userService.register(userMapper.toUser(registerRequest)));
             return UsernamePasswordAuthenticationToken.authenticated(userDetails, null, userDetails.getAuthorities());
-
         } catch (JsonProcessingException e) {
             throw new CustomAuthenticationValidationException("Unsupported JSON format");
+        } catch (DataIntegrityViolationException e) {
+            throw new UserWithThisNameAlreadyExistsException("Username already exists");
         }
     }
 

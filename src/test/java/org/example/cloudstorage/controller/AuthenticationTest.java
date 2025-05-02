@@ -2,7 +2,6 @@ package org.example.cloudstorage.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.cloudstorage.config.PostgresContainerConfig;
-import org.example.cloudstorage.config.RedisContainerConfig;
 import org.example.cloudstorage.dto.user.UserLoginRequest;
 import org.example.cloudstorage.dto.user.UserRegisterRequest;
 import org.example.cloudstorage.entity.User;
@@ -16,8 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ActiveProfiles("test")
 @SpringBootTest
-@Import({PostgresContainerConfig.class, RedisContainerConfig.class})
+@Import({PostgresContainerConfig.class})
 @AutoConfigureMockMvc
 @Transactional
 class AuthenticationTest {
@@ -55,9 +54,10 @@ class AuthenticationTest {
         static final UserRegisterRequest REGISTER_REQUEST = new UserRegisterRequest(USERNAME, PASSWORD);
 
         static User USER() {
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             User user = new User();
             user.setUsername(USERNAME);
-            user.setPassword(PASSWORD);
+            user.setPassword(encoder.encode(PASSWORD));
             return user;
         }
     }
@@ -79,7 +79,7 @@ class AuthenticationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(REGISTER_REQUEST))
         ).andExpectAll(
-                status().is(HttpStatus.CREATED.value()),
+                status().isCreated(),
                 r -> jsonPath("$.username", equalTo(USERNAME))
         );
     }
@@ -94,7 +94,7 @@ class AuthenticationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(REGISTER_REQUEST))
         ).andExpectAll(
-                status().is(HttpStatus.CONFLICT.value()),
+                status().isConflict(),
                 jsonPath("$.message", containsString("already exists"))
         );
     }
@@ -110,7 +110,7 @@ class AuthenticationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(userRegisterRequest))
         ).andExpectAll(
-                status().is(HttpStatus.BAD_REQUEST.value()),
+                status().isBadRequest(),
                 jsonPath("$.message", containsString("username"))
         );
     }
@@ -127,7 +127,7 @@ class AuthenticationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(userRegisterRequest))
         ).andExpectAll(
-                status().is(HttpStatus.BAD_REQUEST.value()),
+                status().isBadRequest(),
                 jsonPath("$.message", containsString("password"))
         );
     }
@@ -142,7 +142,7 @@ class AuthenticationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(LOGIN_REQUEST))
         ).andExpectAll(
-                status().is(HttpStatus.OK.value()),
+                status().isOk(),
                 jsonPath("$.username", equalTo(USERNAME))
         );
     }
@@ -158,7 +158,7 @@ class AuthenticationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(userRegisterRequest))
         ).andExpectAll(
-                status().is(HttpStatus.BAD_REQUEST.value()),
+                status().isBadRequest(),
                 jsonPath("$.message", containsString("username"))
 
         );
@@ -176,7 +176,7 @@ class AuthenticationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(userRegisterRequest))
         ).andExpectAll(
-                status().is(HttpStatus.BAD_REQUEST.value()),
+                status().isBadRequest(),
                 jsonPath("$.message", containsString("password"))
         );
     }

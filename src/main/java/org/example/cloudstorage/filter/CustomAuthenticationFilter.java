@@ -4,10 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.example.cloudstorage.config.security.CustomUserDetails;
 import org.example.cloudstorage.dto.user.UserLoginRequest;
 import org.example.cloudstorage.dto.user.UsernameResponseDto;
 import org.example.cloudstorage.exception.CustomAuthenticationValidationException;
+import org.example.cloudstorage.model.CustomUserDetails;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,7 +17,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
@@ -57,7 +56,6 @@ public class CustomAuthenticationFilter extends AbstractAuthenticationProcessing
                             loginRequest.getUsername(),
                             loginRequest.getPassword());
 
-            authRequest.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             return getAuthenticationManager().authenticate(authRequest);
         } catch (JsonProcessingException e) {
             throw new CustomAuthenticationValidationException("Unsupported JSON format");

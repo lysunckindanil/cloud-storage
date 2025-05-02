@@ -1,6 +1,7 @@
 package org.example.cloudstorage.config.security;
 
 import lombok.RequiredArgsConstructor;
+import org.example.cloudstorage.model.CustomUserDetails;
 import org.example.cloudstorage.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,12 +33,12 @@ public class AuthConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public SecurityContextRepository contextRepo() {
+        return new HttpSessionSecurityContextRepository();
     }
 
     @Bean
-    public SecurityContextRepository contextRepo() {
-        return new HttpSessionSecurityContextRepository();
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

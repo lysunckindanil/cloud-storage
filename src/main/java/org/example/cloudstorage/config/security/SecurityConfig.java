@@ -14,10 +14,7 @@ import org.springframework.security.config.annotation.web.configurers.LogoutConf
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
-
-@EnableRedisHttpSession
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
@@ -49,6 +46,7 @@ public class SecurityConfig {
     private void requestsMatchersConf(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry authorize) {
         authorize
                 .requestMatchers("/auth/sign-in", "/auth/sign-up").anonymous()
+                .requestMatchers("/user/**").authenticated()
                 .anyRequest().authenticated();
     }
 

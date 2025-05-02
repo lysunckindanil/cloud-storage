@@ -1,6 +1,5 @@
 package org.example.cloudstorage.handler;
 
-import org.example.cloudstorage.exception.UserWithThisNameAlreadyExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.validation.BindException;
@@ -11,11 +10,6 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionAdvice {
-    @ExceptionHandler(UserWithThisNameAlreadyExistsException.class)
-    public ProblemDetail handleUserWithThisNameAlreadyExistsException(UserWithThisNameAlreadyExistsException e) {
-        return wrapToProblemDetail(e.getMessage(), HttpStatus.CONFLICT);
-    }
-
     @ExceptionHandler(BindException.class)
     public ProblemDetail handleBindException(BindException e) {
         return wrapToProblemDetail(
