@@ -6,12 +6,12 @@
 
 #### Setup
 
-1. Create `.env` file:
+1. Create `.env` file in the root:
    ```bash
-   echo "POSTGRES_DB=your_db_name" >> .env
-   echo "POSTGRES_USER=your_db_user" >> .env
-   echo "POSTGRES_PASSWORD=your_db_password" >> .env
-   echo "REDIS_PASSWORD=your_redis_password" >> .env
+   REDIS_PASSWORD=your_redis_password
+   POSTGRES_PASSWORD=your_db_password
+   POSTGRES_USER=your_db_user
+   POSTGRES_DB=your_db_name
    ```
 2. Start containers:
 
@@ -20,11 +20,13 @@
    docker compose up -d
    ```
 
+
 ### Kubernetes
 
 #### Setup
 
-1. Deploy components:
+1. Change secrets in `k8s/cloud-storage-secrets.yaml` if needed
+2. Deploy components:
    ```bash
    kubectl apply -f k8s/cloud-storage-secrets.yaml
    kubectl apply -f k8s/cloud-storage-config.yaml
