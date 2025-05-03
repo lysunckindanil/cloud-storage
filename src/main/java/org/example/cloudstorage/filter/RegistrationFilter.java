@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.example.cloudstorage.dto.user.UserRegisterRequest;
 import org.example.cloudstorage.dto.user.UsernameResponseDto;
 import org.example.cloudstorage.exception.CustomAuthenticationValidationException;
@@ -29,6 +30,7 @@ import java.io.InputStream;
 
 import static org.example.cloudstorage.util.AuthenticationRequestValidator.validate;
 
+@Slf4j
 @Component
 public class RegistrationFilter extends AbstractAuthenticationProcessingFilter {
     private final ObjectMapper objectMapper;
@@ -60,6 +62,7 @@ public class RegistrationFilter extends AbstractAuthenticationProcessingFilter {
             validate(registerRequest);
 
             UserDetails user = userService.register(userMapper.toUser(registerRequest));
+            log.debug("User successfully registered ({}; {})", user.getUsername(), user.getAuthorities());
             return UsernamePasswordAuthenticationToken.authenticated(user, null, user.getAuthorities());
         } catch (JsonProcessingException e) {
             throw new CustomAuthenticationValidationException("Unsupported JSON format");
@@ -76,11 +79,13 @@ public class RegistrationFilter extends AbstractAuthenticationProcessingFilter {
                     ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername()
             );
             objectMapper.writeValue(response.getWriter(), usernameResponseDto);
+            log.debug("User successfully logged in ({})", usernameResponseDto.getUsername());
         });
     }
 
     private void setAuthenticationFailureHandler() {
         super.setAuthenticationFailureHandler((request, response, exception) -> {
+            log.debug("Authentication failed: {}", exception.getMessage());
             int status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
             String message = "Internal Server Error";
 
@@ -90,6 +95,8 @@ public class RegistrationFilter extends AbstractAuthenticationProcessingFilter {
             } else if (exception instanceof UserWithThisNameAlreadyExistsException) {
                 status = HttpServletResponse.SC_CONFLICT;
                 message = exception.getMessage();
+            } else {
+                log.error(exception.getMessage(), exception);
             }
 
             ProblemDetail problemDetail = ProblemDetail.forStatus(status);
