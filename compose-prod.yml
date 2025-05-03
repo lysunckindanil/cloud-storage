@@ -14,7 +14,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
-  cloudstorage:
+  cloud-storage:
     image: zloymumu/cloud-storage:0.0.1-SNAPSHOT
     container_name: cloud-storage
     environment:
@@ -27,6 +27,7 @@ services:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_HOST: minio
     restart: always
     ports:
       - "80:8080"

@@ -1,4 +1,8 @@
 spring:
+  minio:
+    url: https://${MINIO_HOST:localhost}:9000
+    access_key: ${MINIO_ROOT_USER}
+    secret_key: ${MINIO_ROOT_PASSWORD}
   application:
     name: cloud-storage
   datasource:
