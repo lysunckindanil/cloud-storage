@@ -12,6 +12,8 @@
    POSTGRES_PASSWORD=your_db_password
    POSTGRES_USER=your_db_user
    POSTGRES_DB=your_db_name
+   MINIO_ROOT_USER=your_minio_user
+   MINIO_ROOT_PASSWORD=your_minio_password
    ```
 2. Start containers:
 
