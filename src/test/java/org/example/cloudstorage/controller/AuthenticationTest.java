@@ -2,10 +2,12 @@ package org.example.cloudstorage.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.cloudstorage.config.PostgresContainerConfig;
+import org.example.cloudstorage.config.RedisContainerConfig;
 import org.example.cloudstorage.dto.user.UserLoginRequest;
 import org.example.cloudstorage.dto.user.UserRegisterRequest;
 import org.example.cloudstorage.entity.User;
 import org.example.cloudstorage.service.UserService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -33,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ActiveProfiles("test")
 @SpringBootTest
-@Import({PostgresContainerConfig.class})
+@Import({PostgresContainerConfig.class, RedisContainerConfig.class})
 @AutoConfigureMockMvc
 @Transactional
 class AuthenticationTest {
@@ -82,6 +84,7 @@ class AuthenticationTest {
                 status().isCreated(),
                 r -> jsonPath("$.username", equalTo(USERNAME))
         );
+        Assertions.assertTrue(userService.findByUsername(USERNAME).isPresent());
     }
 
     @Test

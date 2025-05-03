@@ -21,8 +21,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles("test")
-@Import({SecurityConfig.class, AuthConfig.class})
 @WebMvcTest(controllers = UserController.class)
+@Import({SecurityConfig.class, AuthConfig.class})
 @AutoConfigureMockMvc
 class UserControllerTest {
 
@@ -35,6 +35,7 @@ class UserControllerTest {
     @MockitoBean
     UserMapper userMapper;
 
+
     @Test
     @WithMockUser(username = "dummy")
     @DisplayName("Authenticated user -> returns username")
@@ -45,11 +46,10 @@ class UserControllerTest {
                 status().isOk(),
                 jsonPath("$.username", equalTo("dummy"))
         );
-
     }
 
     @Test
-    @DisplayName("Authenticated user -> returns username")
+    @DisplayName("Unauthenticated user -> throws")
     void me_unauthenticated_throws() throws Exception {
         mvc.perform(
                 get("/user/me")

@@ -1,8 +1,8 @@
 package org.example.cloudstorage.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.cloudstorage.entity.Role;
 import org.example.cloudstorage.entity.User;
+import org.example.cloudstorage.model.Role;
 import org.example.cloudstorage.repo.UserRepository;
 import org.springframework.stereotype.Service;
 

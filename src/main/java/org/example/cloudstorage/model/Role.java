@@ -1,4 +1,4 @@
-package org.example.cloudstorage.entity;
+package org.example.cloudstorage.model;
 
 public enum Role {
     ROLE_USER,

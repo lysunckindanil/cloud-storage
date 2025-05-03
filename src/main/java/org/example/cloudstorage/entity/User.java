@@ -4,6 +4,7 @@ package org.example.cloudstorage.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.example.cloudstorage.model.Role;
 
 import java.io.Serial;
 import java.io.Serializable;
