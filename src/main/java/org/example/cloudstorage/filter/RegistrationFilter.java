@@ -9,7 +9,6 @@ import org.example.cloudstorage.dto.user.UsernameResponseDto;
 import org.example.cloudstorage.exception.CustomAuthenticationValidationException;
 import org.example.cloudstorage.exception.UserWithThisNameAlreadyExistsException;
 import org.example.cloudstorage.mapper.UserMapper;
-import org.example.cloudstorage.model.CustomUserDetails;
 import org.example.cloudstorage.service.UserService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
@@ -19,6 +18,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -59,8 +59,8 @@ public class RegistrationFilter extends AbstractAuthenticationProcessingFilter {
 
             validate(registerRequest);
 
-            CustomUserDetails userDetails = new CustomUserDetails(userService.register(userMapper.toUser(registerRequest)));
-            return UsernamePasswordAuthenticationToken.authenticated(userDetails, null, userDetails.getAuthorities());
+            UserDetails user = userService.register(userMapper.toUser(registerRequest));
+            return UsernamePasswordAuthenticationToken.authenticated(user, null, user.getAuthorities());
         } catch (JsonProcessingException e) {
             throw new CustomAuthenticationValidationException("Unsupported JSON format");
         } catch (DataIntegrityViolationException e) {
@@ -73,7 +73,7 @@ public class RegistrationFilter extends AbstractAuthenticationProcessingFilter {
             response.setStatus(HttpServletResponse.SC_CREATED);
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             UsernameResponseDto usernameResponseDto = new UsernameResponseDto(
-                    ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername()
+                    ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername()
             );
             objectMapper.writeValue(response.getWriter(), usernameResponseDto);
         });

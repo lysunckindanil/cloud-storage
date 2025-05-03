@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.example.cloudstorage.dto.user.UserLoginRequest;
 import org.example.cloudstorage.dto.user.UsernameResponseDto;
 import org.example.cloudstorage.exception.CustomAuthenticationValidationException;
-import org.example.cloudstorage.model.CustomUserDetails;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,6 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -67,7 +67,7 @@ public class CustomAuthenticationFilter extends AbstractAuthenticationProcessing
             response.setStatus(HttpServletResponse.SC_OK);
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             UsernameResponseDto usernameResponseDto = new UsernameResponseDto(
-                    ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername()
+                    ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername()
             );
             objectMapper.writeValue(response.getWriter(), usernameResponseDto);
         });

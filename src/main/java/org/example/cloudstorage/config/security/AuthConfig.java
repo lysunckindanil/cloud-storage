@@ -1,7 +1,6 @@
 package org.example.cloudstorage.config.security;
 
 import lombok.RequiredArgsConstructor;
-import org.example.cloudstorage.model.CustomUserDetails;
 import org.example.cloudstorage.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +22,6 @@ public class AuthConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> userService.findByUsername(username)
-                .map(CustomUserDetails::new)
                 .orElseThrow(() -> new UsernameNotFoundException(username));
     }
 
