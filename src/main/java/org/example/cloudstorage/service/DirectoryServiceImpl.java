@@ -3,7 +3,7 @@ package org.example.cloudstorage.service;
 import lombok.RequiredArgsConstructor;
 import org.example.cloudstorage.dto.ResourceResponseDto;
 import org.example.cloudstorage.entity.User;
-import org.example.cloudstorage.handler.MinioException;
+import org.example.cloudstorage.exception.MinioException;
 import org.example.cloudstorage.mapper.ResourceResponseDtoMapper;
 import org.example.cloudstorage.minio.MinioRepository;
 import org.springframework.stereotype.Service;

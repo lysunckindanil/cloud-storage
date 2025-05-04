@@ -1,6 +1,8 @@
 package org.example.cloudstorage.handler;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.cloudstorage.exception.InvalidPathMinioException;
+import org.example.cloudstorage.exception.MinioException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.validation.BindException;

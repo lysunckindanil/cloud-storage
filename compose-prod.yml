@@ -30,7 +30,7 @@ services:
       MINIO_HOST: minio
     restart: always
     ports:
-      - "80:8080"
+      - "8080:8080"
 
   minio:
     image: minio/minio
@@ -39,3 +39,11 @@ services:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     command: server /data --console-address ":9001"
+
+  frontend:
+    build: /frontend
+    container_name: cloud-storage-frontend
+    ports:
+      - "80:80"
+    environment:
+      BACKEND_URL: http://cloud-storage:8080

@@ -1,6 +1,7 @@
 package org.example.cloudstorage.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.cloudstorage.config.MinioMockConfig;
 import org.example.cloudstorage.config.PostgresContainerConfig;
 import org.example.cloudstorage.config.RedisContainerConfig;
 import org.example.cloudstorage.dto.user.UserLoginRequest;
@@ -35,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ActiveProfiles("test")
 @SpringBootTest
-@Import({PostgresContainerConfig.class, RedisContainerConfig.class})
+@Import({PostgresContainerConfig.class, RedisContainerConfig.class, MinioMockConfig.class})
 @AutoConfigureMockMvc
 @Transactional
 class AuthenticationTest {
