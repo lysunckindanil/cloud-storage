@@ -1,16 +1,16 @@
 package org.example.cloudstorage.handler;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
-import org.example.cloudstorage.exception.InvalidPathMinioException;
 import org.example.cloudstorage.exception.MinioException;
+import org.example.cloudstorage.exception.ResourceAlreadyExistsMinioException;
+import org.example.cloudstorage.exception.ResourceNotFoundMinioException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
-import org.springframework.validation.BindException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
-
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
@@ -18,33 +18,42 @@ public class GlobalExceptionAdvice {
 
     @ExceptionHandler(MinioException.class)
     public ProblemDetail handleMinioException(MinioException e) {
-        if (e instanceof InvalidPathMinioException) {
-            return wrapToProblemDetail(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
         log.error(e.getMessage(), e);
-        return wrapToProblemDetail("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+        return wrapToProblemDetail("Internal Server Error (Minio)", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(ResourceNotFoundMinioException.class)
+    public ProblemDetail handleResourceNotFoundMinioException(ResourceNotFoundMinioException e) {
+        return wrapToProblemDetail(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
 
-    @ExceptionHandler(BindException.class)
-    public ProblemDetail handleBindException(BindException e) {
-        return wrapToProblemDetail(
-                e.getFieldErrors()
-                        .stream()
-                        .map(error -> "%s %s".formatted(error.getField(), error.getDefaultMessage()))
-                        .collect(Collectors.joining(", ")),
+    @ExceptionHandler(ResourceAlreadyExistsMinioException.class)
+    public ProblemDetail handleResourceAlreadyExistsMinioException(ResourceAlreadyExistsMinioException e) {
+        return wrapToProblemDetail(e.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ProblemDetail handleConstraintViolationException(ConstraintViolationException e) {
+        return wrapToProblemDetail(e.getConstraintViolations().stream().findAny().get().getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ProblemDetail handleMissingParameterException(MissingServletRequestParameterException e) {
+        return wrapToProblemDetail("Request parameter is missing: %s".formatted(e.getParameterName()),
                 HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
-    public ProblemDetail handleNoResourceFoundException() {
-        return wrapToProblemDetail("Resource Not Found", HttpStatus.NOT_FOUND);
+    public ProblemDetail handleNoResourceFoundException(NoResourceFoundException e) {
+        return wrapToProblemDetail("Resource Not Found: %s".formatted(e.getResourcePath()),
+                HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleInternalServerError(Exception e) {
         log.error(e.getMessage(), e);
-        return wrapToProblemDetail("Internal Server Error: " + e.getClass(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return wrapToProblemDetail("Internal Server Error: %s".formatted(e.getClass()),
+                HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private static ProblemDetail wrapToProblemDetail(String message, HttpStatus status) {

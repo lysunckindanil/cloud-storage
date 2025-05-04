@@ -6,7 +6,7 @@ import org.example.cloudstorage.entity.User;
 import java.util.List;
 
 public interface DirectoryService {
-    List<ResourceResponseDto> get(String path, User userDetails);
+    List<ResourceResponseDto> get(String path, User user);
 
     ResourceResponseDto create(String path, User user);
 }

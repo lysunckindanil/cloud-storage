@@ -1,28 +1,21 @@
 package org.example.cloudstorage.mapper;
 
-import io.minio.Result;
 import io.minio.messages.Item;
 import org.example.cloudstorage.dto.ResourceResponseDto;
 import org.example.cloudstorage.model.ResourceType;
 import org.example.cloudstorage.util.PathUtils;
 
 public class ResourceResponseDtoMapper {
-    public static ResourceResponseDto toDto(Result<Item> resultItem) {
-        try {
-            Item item = resultItem.get();
+    public static ResourceResponseDto toDto(Item item) {
+        PathUtils.Breadcrumb breadcrumb = PathUtils.constructBreadcrumb(item.objectName(), item.isDir(), 1);
 
-            PathUtils.Breadcrumb breadcrumb = PathUtils.constructBreadcrumb(item.objectName(), item.isDir(), 1);
-
-            return ResourceResponseDto
-                    .builder()
-                    .name(breadcrumb.getName())
-                    .path(breadcrumb.getPath())
-                    .type(item.isDir() ? ResourceType.DIRECTORY : ResourceType.FILE)
-                    .size(item.isDir() ? null : item.size())
-                    .build();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return ResourceResponseDto
+                .builder()
+                .name(breadcrumb.getName())
+                .path(breadcrumb.getPath())
+                .type(item.isDir() ? ResourceType.DIRECTORY : ResourceType.FILE)
+                .size(item.isDir() ? null : item.size())
+                .build();
     }
 
     public static ResourceResponseDto toDto(String path) {
