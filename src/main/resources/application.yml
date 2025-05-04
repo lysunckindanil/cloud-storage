@@ -1,8 +1,13 @@
 spring:
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 200MB
   minio:
-    url: https://${MINIO_HOST:localhost}:9000
+    url: http://${MINIO_HOST:localhost}:9000
     access_key: ${MINIO_ROOT_USER}
     secret_key: ${MINIO_ROOT_PASSWORD}
+    bucket_name: user-files
   application:
     name: cloud-storage
   datasource:

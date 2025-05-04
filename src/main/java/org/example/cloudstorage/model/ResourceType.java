@@ -1,5 +1,5 @@
 package org.example.cloudstorage.model;
 
-public enum Type {
+public enum ResourceType {
     FILE, DIRECTORY
 }

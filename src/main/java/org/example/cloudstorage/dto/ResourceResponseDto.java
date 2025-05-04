@@ -3,7 +3,7 @@ package org.example.cloudstorage.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Value;
-import org.example.cloudstorage.model.Type;
+import org.example.cloudstorage.model.ResourceType;
 
 @Builder
 @Value
@@ -12,5 +12,5 @@ public class ResourceResponseDto {
     String path;
     String name;
     Long size;
-    Type type;
+    ResourceType type;
 }

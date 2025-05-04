@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @RestController
-@RequestMapping("/resources")
+@RequestMapping("/resource")
 @RequiredArgsConstructor
 public class ResourceController {
     private final ResourceService resourceService;
@@ -34,7 +34,6 @@ public class ResourceController {
     @GetMapping("/download")
     public ResponseEntity<Resource> download(@RequestParam("path") String path, @AuthenticationPrincipal User user) {
         InputStreamResource object = resourceService.download(path, user);
-
         ContentDisposition contentDisposition = ContentDisposition.attachment()
                 .filename(path, StandardCharsets.UTF_8)
                 .build();
@@ -57,8 +56,9 @@ public class ResourceController {
     }
 
     @PostMapping
-    public ResponseEntity<List<ResourceResponseDto>> upload(@RequestParam("path") String path, @RequestPart("object") List<MultipartFile> file,
+    public ResponseEntity<List<ResourceResponseDto>> upload(@RequestParam("path") String path,
+                                                            @RequestParam("object") List<MultipartFile> files,
                                                             @AuthenticationPrincipal User user) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(resourceService.upload(path, file, user));
+        return ResponseEntity.status(HttpStatus.CREATED).body(resourceService.upload(path, files, user));
     }
 }

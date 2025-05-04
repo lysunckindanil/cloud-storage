@@ -13,6 +13,17 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionAdvice {
+
+    @ExceptionHandler(MinioException.class)
+    public ProblemDetail handleMinioException(MinioException e) {
+        if (e instanceof InvalidPathMinioException) {
+            return wrapToProblemDetail(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        log.error(e.getMessage(), e);
+        return wrapToProblemDetail("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+
     @ExceptionHandler(BindException.class)
     public ProblemDetail handleBindException(BindException e) {
         return wrapToProblemDetail(
