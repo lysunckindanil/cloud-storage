@@ -1,11 +1,9 @@
 package org.example.cloudstorage.service;
 
-import io.minio.errors.ErrorResponseException;
 import lombok.RequiredArgsConstructor;
 import org.example.cloudstorage.dto.ResourceResponseDto;
 import org.example.cloudstorage.entity.User;
 import org.example.cloudstorage.exception.MinioException;
-import org.example.cloudstorage.exception.ResourceNotFoundMinioException;
 import org.example.cloudstorage.mapper.ResourceResponseDtoMapper;
 import org.example.cloudstorage.minio.MinioRepository;
 import org.springframework.stereotype.Service;
@@ -22,16 +20,10 @@ public class DirectoryServiceImpl implements DirectoryService {
     @Override
     public List<ResourceResponseDto> get(String path, User user) {
         String completePath = MINIO_USER_PREFIX.formatted(user.getId()) + path;
-        try {
-            return minioRepository.getList(completePath, false)
-                    .stream()
-                    .map(ResourceResponseDtoMapper::toDto)
-                    .toList();
-        } catch (ErrorResponseException e) {
-            throw new ResourceNotFoundMinioException("The path does not exist: %s".formatted(path), e);
-        } catch (Exception e) {
-            throw new MinioException("Error occurred while fetching list of objects", e);
-        }
+        return minioRepository.getList(completePath, false)
+                .stream()
+                .map(ResourceResponseDtoMapper::toDto)
+                .toList();
     }
 
     @Override

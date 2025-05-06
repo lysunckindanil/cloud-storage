@@ -2,6 +2,7 @@ package org.example.cloudstorage.handler;
 
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.example.cloudstorage.exception.InvalidFilenameMinioException;
 import org.example.cloudstorage.exception.MinioException;
 import org.example.cloudstorage.exception.ResourceAlreadyExistsMinioException;
 import org.example.cloudstorage.exception.ResourceNotFoundMinioException;
@@ -16,11 +17,10 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 @RestControllerAdvice
 public class GlobalExceptionAdvice {
 
-    @ExceptionHandler(MinioException.class)
-    public ProblemDetail handleMinioException(MinioException e) {
-        log.error("MinIO operation failed: {}", e.getMessage());
-        log.debug("Full error details", e);
-        return wrapToProblemDetail("Internal Server Error (Minio)", HttpStatus.INTERNAL_SERVER_ERROR);
+    @ExceptionHandler(InvalidFilenameMinioException.class)
+    public ProblemDetail handleInvalidFilenameMinioException(InvalidFilenameMinioException e) {
+        log.debug("MinioException", e);
+        return wrapToProblemDetail(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ResourceNotFoundMinioException.class)
@@ -33,6 +33,13 @@ public class GlobalExceptionAdvice {
     public ProblemDetail handleResourceAlreadyExistsMinioException(ResourceAlreadyExistsMinioException e) {
         log.debug("MinioException", e);
         return wrapToProblemDetail(e.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(MinioException.class)
+    public ProblemDetail handleMinioException(MinioException e) {
+        log.error("MinIO operation failed: {}", e.getMessage());
+        log.debug("Full error details", e);
+        return wrapToProblemDetail("Internal Server Error (Minio)", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
