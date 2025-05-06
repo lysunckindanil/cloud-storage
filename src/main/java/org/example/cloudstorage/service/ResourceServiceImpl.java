@@ -3,17 +3,14 @@ package org.example.cloudstorage.service;
 import lombok.RequiredArgsConstructor;
 import org.example.cloudstorage.dto.ResourceResponseDto;
 import org.example.cloudstorage.entity.User;
-import org.example.cloudstorage.exception.InvalidFilenameMinioException;
 import org.example.cloudstorage.exception.ResourceAlreadyExistsMinioException;
 import org.example.cloudstorage.mapper.ResourceResponseDtoMapper;
 import org.example.cloudstorage.minio.MinioRepository;
-import org.example.cloudstorage.util.PathUtils;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Objects;
 
 import static org.example.cloudstorage.constant.AppConstants.MINIO_USER_PREFIX;
 
@@ -24,19 +21,18 @@ public class ResourceServiceImpl implements ResourceService {
 
     @Override
     public ResourceResponseDto get(String path, User user) {
-        return ResourceResponseDtoMapper.toDto(minioRepository.getByPath(path));
+        String completePath = MINIO_USER_PREFIX.formatted(user.getId()) + path;
+        return ResourceResponseDtoMapper.toDto(minioRepository.getByPath(completePath));
     }
 
     @Override
     public void delete(String path, User user) {
-        if (path.startsWith("/")) path = path.substring(1);
         String completePath = MINIO_USER_PREFIX.formatted(user.getId()) + path;
         minioRepository.delete(completePath);
     }
 
     @Override
     public InputStreamResource download(String path, User user) {
-        if (path.startsWith("/")) path = path.substring(1);
         String completePath = MINIO_USER_PREFIX.formatted(user.getId()) + path;
         return minioRepository.download(completePath);
     }
@@ -57,10 +53,7 @@ public class ResourceServiceImpl implements ResourceService {
 
         for (MultipartFile file : files) {
             if (minioRepository.existsByPath(completePath + "/" + file.getOriginalFilename()))
-                throw new ResourceAlreadyExistsMinioException("File already exists: %s".formatted(file.getOriginalFilename()));
-
-            if (!PathUtils.isPathValid(Objects.requireNonNull(file.getOriginalFilename())))
-                throw new InvalidFilenameMinioException("Don't support symbols in filename: %s"
+                throw new ResourceAlreadyExistsMinioException("File already exists: %s"
                         .formatted(file.getOriginalFilename()));
         }
 

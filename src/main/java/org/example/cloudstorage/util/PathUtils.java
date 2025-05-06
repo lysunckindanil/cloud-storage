@@ -21,7 +21,7 @@ public class PathUtils {
      * If a path is root => path = '/'
      * or else path is parent of file/directory
      *
-     * @param path        file/directory path; '/' in the end doesn't matter
+     * @param path        file/directory path; expected that valid; '+' will be replaced with space
      * @param isDir       to mark the path as file or directory
      * @param parentStart from which parent to start (e.g.,
      *                    if equals 0 then the returned path will be 0/1/2/n/)
@@ -30,16 +30,15 @@ public class PathUtils {
      * @throws IllegalArgumentException if path is invalid or path and parentStart are not compatible
      */
     public static Breadcrumb constructBreadcrumb(String path, boolean isDir, int parentStart) {
-        if (!isPathValid(path))
-            throw new IllegalArgumentException("Invalid path: " + path);
-
         try {
             Path file = Paths.get(path);
             file = file.subpath(parentStart, file.getNameCount());
 
+            String filePath = file.getParent() == null ? "/" : (file.getParent().toFile() + "/");
+            String fileName = isDir ? file.getFileName() + "/" : file.getFileName().toString();
             return new Breadcrumb(
-                    (file.getParent() == null ? "/" : (file.getParent().toFile() + "/")).replace("\\", "/"),
-                    isDir ? file.getFileName() + "/" : file.getFileName().toString()
+                    filePath.replace("\\", "/"),
+                    fileName.replace("+", " ")
             );
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid path: " + path);
@@ -54,7 +53,7 @@ public class PathUtils {
             return false;
         }
 
-        Pattern validPathPattern = Pattern.compile("^[a-zA-Z0-9!\\-_.*'()/]+$");
+        Pattern validPathPattern = Pattern.compile("^[a-zA-Zа-яА-Я0-9!\\-_.*'()/+ ]+$");
 
         if (!validPathPattern.matcher(path).matches()) {
             return false;
@@ -65,6 +64,11 @@ public class PathUtils {
         }
 
         return true;
+    }
+
+    public static String normalizePathAsMinioKey(String path) {
+        if (path.startsWith("/")) path = path.substring(1);
+        return path.strip().replace(" ", "+").replace("//", "/");
     }
 
     public static Breadcrumb breadcrumb(String path, String name) {

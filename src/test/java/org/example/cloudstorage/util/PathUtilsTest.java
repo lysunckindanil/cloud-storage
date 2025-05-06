@@ -60,14 +60,7 @@ class PathUtilsTest {
                 Arguments.of("folder/folder", true, 2),
                 Arguments.of("folder/folder/", true, 2),
                 Arguments.of("folder/folder/", true, 2),
-                Arguments.of("folder/folder/", true, 2),
-                Arguments.of("/$/", false, 0),
-                Arguments.of("/$", false, 0),
-                Arguments.of("$/", false, 0),
-                Arguments.of("$", true, 0),
-                Arguments.of("/$/", true, 0),
-                Arguments.of("/$", true, 0),
-                Arguments.of("$/", true, 0)
+                Arguments.of("folder/folder/", true, 2)
         );
     }
 

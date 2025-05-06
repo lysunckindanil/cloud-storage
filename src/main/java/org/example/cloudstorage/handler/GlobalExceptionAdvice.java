@@ -26,7 +26,7 @@ public class GlobalExceptionAdvice {
     @ExceptionHandler(ResourceNotFoundMinioException.class)
     public ProblemDetail handleResourceNotFoundMinioException(ResourceNotFoundMinioException e) {
         log.debug("MinioException", e);
-        return wrapToProblemDetail(e.getMessage(), HttpStatus.NOT_FOUND);
+        return wrapToProblemDetail("Provided path does not relate to any resource", HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ResourceAlreadyExistsMinioException.class)

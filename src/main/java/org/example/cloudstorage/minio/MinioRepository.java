@@ -3,8 +3,10 @@ package org.example.cloudstorage.minio;
 import io.minio.*;
 import io.minio.errors.ErrorResponseException;
 import io.minio.messages.Item;
+import org.example.cloudstorage.exception.InvalidFilenameMinioException;
 import org.example.cloudstorage.exception.MinioException;
 import org.example.cloudstorage.exception.ResourceNotFoundMinioException;
+import org.example.cloudstorage.util.PathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
@@ -17,11 +19,11 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static org.example.cloudstorage.constant.AppConstants.MINIO_FOLDER_POSTFIX;
 
 public class MinioRepository {
 
-    Logger logger = LoggerFactory.getLogger(MinioRepository.class);
+    public static final String MINIO_FOLDER_POSTFIX = "$";
+    private final Logger logger = LoggerFactory.getLogger(MinioRepository.class);
 
     private final MinioClient minioClient;
     private final String bucketName;
@@ -43,12 +45,14 @@ public class MinioRepository {
     }
 
     public void delete(String path) {
+        path = PathUtils.normalizePathAsMinioKey(path);
         for (Item item : getListObjects(path, true)) {
             deleteObject(item.objectName());
         }
     }
 
     public boolean existsByPath(String path) {
+        path = PathUtils.normalizePathAsMinioKey(path);
         if (path.endsWith("/")) {
             path = path + MINIO_FOLDER_POSTFIX;
         }
@@ -61,6 +65,7 @@ public class MinioRepository {
     }
 
     public List<Item> getList(String path, boolean recursive) {
+        path = PathUtils.normalizePathAsMinioKey(path);
         if (!existsByPath(path)) throw new ResourceNotFoundMinioException("Folder is not found");
         return getListObjects(path, recursive).stream()
                 .filter(item -> !item.objectName().endsWith(MINIO_FOLDER_POSTFIX))
@@ -68,6 +73,7 @@ public class MinioRepository {
     }
 
     public InputStreamResource download(String path) {
+        path = PathUtils.normalizePathAsMinioKey(path);
         if (!path.endsWith("/")) {
             return new InputStreamResource(downloadObject(path));
         } else {
@@ -94,12 +100,17 @@ public class MinioRepository {
 
             @Override
             public String objectName() {
-                return path;
+                return isDir
+                        ?
+                        statObject.object().substring(0, statObject.object().length() - MINIO_FOLDER_POSTFIX.length())
+                        :
+                        statObject.object();
             }
         };
     }
 
     public void createEmptyDirectory(String path) throws Exception {
+        path = PathUtils.normalizePathAsMinioKey(path);
         minioClient.putObject(
                 PutObjectArgs.builder()
                         .bucket(bucketName)
@@ -109,17 +120,19 @@ public class MinioRepository {
     }
 
     private InputStreamResource downloadAsZip(String path) {
+        String downloadPath = PathUtils.normalizePathAsMinioKey(path);
+
         PipedOutputStream out = new PipedOutputStream();
         new Thread(() -> {
             try (ZipOutputStream zipOut = new ZipOutputStream(out)) {
-                for (Item item : this.getListObjects(path, true)) {
+                for (Item item : this.getListObjects(downloadPath, true)) {
                     if (!item.isDir()) {
                         String objectName = item.objectName();
                         var fileStream = downloadObject(objectName);
 
                         String entryName = item.objectName().endsWith(MINIO_FOLDER_POSTFIX) ?
-                                item.objectName().substring(path.length(), objectName.length() - 1) :
-                                item.objectName().substring(path.length());
+                                item.objectName().substring(downloadPath.length(), objectName.length() - MINIO_FOLDER_POSTFIX.length()) :
+                                item.objectName().substring(downloadPath.length());
 
                         zipOut.putNextEntry(new ZipEntry(entryName));
 
@@ -145,6 +158,8 @@ public class MinioRepository {
     }
 
     private StatObjectResponse getObject(String path) {
+        path = PathUtils.normalizePathAsMinioKey(path);
+
         try {
             return minioClient.statObject(
                     StatObjectArgs.builder()
@@ -159,6 +174,8 @@ public class MinioRepository {
     }
 
     private InputStream downloadObject(String path) {
+        path = PathUtils.normalizePathAsMinioKey(path);
+
         try {
             return minioClient.getObject(GetObjectArgs
                     .builder()
@@ -173,6 +190,8 @@ public class MinioRepository {
     }
 
     private List<Item> getListObjects(String path, boolean recursive) {
+        path = PathUtils.normalizePathAsMinioKey(path);
+
         var result = minioClient.listObjects(
                 ListObjectsArgs.builder()
                         .bucket(bucketName)
@@ -193,16 +212,22 @@ public class MinioRepository {
     }
 
     private void uploadObject(String path, MultipartFile file) throws Exception {
+        String uploadPath = PathUtils.normalizePathAsMinioKey(path + file.getOriginalFilename());
+        if (!PathUtils.isPathValid(uploadPath))
+            throw new InvalidFilenameMinioException("Don't support symbols in filename: %s"
+                    .formatted(file.getOriginalFilename()));
+
         minioClient.putObject(
                 PutObjectArgs.builder()
                         .bucket(bucketName)
-                        .object(path + file.getOriginalFilename())
+                        .object(uploadPath)
                         .stream(file.getInputStream(), file.getSize(), -1)
                         .contentType(file.getContentType())
                         .build());
     }
 
     private void deleteObject(String path) {
+        path = PathUtils.normalizePathAsMinioKey(path);
         try {
             minioClient.removeObject(
                     RemoveObjectArgs.builder()
