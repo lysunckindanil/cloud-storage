@@ -15,7 +15,10 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.*;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static org.example.cloudstorage.constant.AppConstants.FOLDER_PREFIX;
 import static org.example.cloudstorage.constant.AppConstants.MINIO_USER_PREFIX;
@@ -66,10 +69,43 @@ public class ResourceServiceImpl implements ResourceService {
         if (path.startsWith("/")) path = path.substring(1);
         String completePath = MINIO_USER_PREFIX.formatted(user.getId()) + path;
         try {
-            return minioRepository.download(completePath);
-        } catch (ErrorResponseException e) {
+            if (!path.endsWith("/"))
+                return minioRepository.download(completePath);
+
+
+            PipedOutputStream out = new PipedOutputStream();
+            PipedInputStream in = new PipedInputStream(out);
+
+            new Thread(() -> {
+                try (ZipOutputStream zipOut = new ZipOutputStream(out)) {
+                    var results = minioRepository.getList(completePath, true);
+
+                    for (Item item : results) {
+                        if (!item.isDir()) {
+                            String objectName = item.objectName();
+                            var fileStream = minioRepository.download(objectName).getInputStream();
+                            String entryName = objectName.substring(objectName.lastIndexOf('/') + 1);
+                            zipOut.putNextEntry(new ZipEntry(entryName));
+
+                            byte[] buffer = new byte[1024];
+                            int len;
+                            while ((len = fileStream.read(buffer)) > 0) {
+                                zipOut.write(buffer, 0, len);
+                            }
+                            zipOut.closeEntry();
+                        }
+                    }
+                    zipOut.finish();
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+            }).start();
+            return new InputStreamResource(in);
+        } catch (
+                ErrorResponseException e) {
             throw new ResourceNotFoundMinioException("The path does not exist: %s".formatted(path), e);
-        } catch (Exception e) {
+        } catch (
+                Exception e) {
             throw new MinioException("Error occurred while fetching list of objects", e);
         }
     }

@@ -38,6 +38,9 @@ public class MinioRepository {
 
     public boolean existsByPath(String path) throws Exception {
         try {
+            if (path.endsWith("/")) {
+                path = path + FOLDER_PREFIX;
+            }
             getObject(path);
         } catch (ErrorResponseException e) {
             return false;
@@ -49,7 +52,7 @@ public class MinioRepository {
         var result = getListObjects(path, recursive);
         List<Item> items = new ArrayList<>();
         for (Result<Item> item : result) {
-//            if (item.get().objectName().endsWith(FOLDER_PREFIX)) continue;
+            if (item.get().objectName().endsWith(FOLDER_PREFIX)) continue;
             items.add(item.get());
         }
         return items;
