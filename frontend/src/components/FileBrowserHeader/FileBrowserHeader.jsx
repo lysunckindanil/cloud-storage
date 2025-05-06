@@ -36,6 +36,8 @@ export const FileBrowserHeader = () => {
     const {pasteObjects} = useStorageOperations();
 
 
+
+
     function handleBack() {
         goToPrevFolder();
     }
@@ -144,7 +146,7 @@ export const FileBrowserHeader = () => {
                             </Button>
                         }
 
-                        {!isCutMode ?
+                        { !isCutMode ?
                             <Box sx={{
                                 position: 'absolute',
                                 width: "50%",
@@ -243,7 +245,7 @@ export const FileBrowserHeader = () => {
                             <AddIcon/>
                         </IconButton>
 
-                        {!isCutMode &&
+                        { !isCutMode &&
 
                             <IconButton onClick={handleOpenMenu} variant='contained' sx={{ml: '0'}}>
                                 <MoreVertIcon/>

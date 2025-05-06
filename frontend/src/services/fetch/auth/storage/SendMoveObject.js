@@ -9,7 +9,7 @@ export const sendMoveObject = async (source, target) => {
     }
 
     console.log("Перемещение:");
-    console.log(source + ' --> ' + target);
+    console.log( source + ' --> ' + target);
 
     const params = new URLSearchParams({from: source, to: target});
 

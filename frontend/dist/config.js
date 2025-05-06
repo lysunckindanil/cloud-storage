@@ -8,10 +8,10 @@ window.APP_CONFIG = {
 
     //адрес вашего бэка. если пустой - значит на одном url с таким же портом.
     //если запускаете бэк и фронт через докер compose - тут ставите имя бэка в докер сети
-    baseUrl: process.env.BACKEND_URL || "http://localhost:8080",
+    baseUrl: "",
 
     //API префикс вашего бэка
-    baseApi: "",
+    baseApi: "/api",
 
 
     /*
@@ -23,8 +23,8 @@ window.APP_CONFIG = {
     //Если true - форма будет валидироваться,
     //ошибки будут отображаться при вводе. Кнопка будет активна только при валидных данных
     //Если false - форму можно отправить без валидации.
-    validateLoginForm: false,
-    validateRegistrationForm: false,
+    validateLoginForm: true,
+    validateRegistrationForm: true,
 
     //корректное имя пользователя
     validUsername: {

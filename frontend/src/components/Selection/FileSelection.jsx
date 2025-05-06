@@ -18,7 +18,7 @@ export const FileSelection = ({
 
     const allowToMove = window.APP_CONFIG.isMoveAllowed;
 
-    const {moveObjects,} = useStorageOperations();
+    const {moveObjects,  } = useStorageOperations();
     const {isSearchMode} = useStorageNavigation();
 
     const {isSelectionMode, setSelectionMode, isCopyMode, isCutMode,} = useStorageSelection();
@@ -33,6 +33,8 @@ export const FileSelection = ({
             setCoordinates({x: touch.clientX, y: touch.clientY});
         }
     };
+
+
 
 
     useEffect(() => {
@@ -122,6 +124,7 @@ export const FileSelection = ({
     //context
 
 
+
     return (
         <>
             {!isCopyMode && !isCutMode &&
@@ -159,8 +162,10 @@ export const FileSelection = ({
             </style>
 
 
+
+
             {
-                allowToMove && !isMob && !isSearchMode &&
+               allowToMove && !isMob && !isSearchMode &&
                 <>
                     <Moveable
                         ref={moveableRef}

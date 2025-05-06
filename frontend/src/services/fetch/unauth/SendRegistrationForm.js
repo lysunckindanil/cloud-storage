@@ -2,10 +2,10 @@ import {API_REGISTRATION} from "../../../UrlConstants.jsx";
 import {throwSpecifyException} from "../../../exception/ThrowSpecifyException.jsx";
 
 
-export const sendRegistrationForm = async (registrationData) => {
+export const sendRegistrationForm = async (registrationData) =>{
     if (import.meta.env.VITE_MOCK_FETCH_CALLS) {
         console.log("Mocked fetch call for registration");
-
+        
         return {
             username: "mocked_user"
         };

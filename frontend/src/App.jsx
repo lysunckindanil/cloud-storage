@@ -21,7 +21,7 @@ function App() {
                     <Route element={<BaseLayout/>}>
                         <Route index element={<Index/>}/>
 
-                        <Route path="*" element={<ErrorPage/>}/>
+                        <Route path="*" element={<ErrorPage />}/>
 
                         {/*available before login only*/}
                         <Route path="login"

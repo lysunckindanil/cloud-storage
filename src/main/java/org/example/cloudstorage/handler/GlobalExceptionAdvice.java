@@ -18,23 +18,26 @@ public class GlobalExceptionAdvice {
 
     @ExceptionHandler(MinioException.class)
     public ProblemDetail handleMinioException(MinioException e) {
-        log.error(e.getMessage(), e);
+        log.error("MinIO operation failed: {}", e.getMessage());
+        log.debug("Full error details", e);
         return wrapToProblemDetail("Internal Server Error (Minio)", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(ResourceNotFoundMinioException.class)
     public ProblemDetail handleResourceNotFoundMinioException(ResourceNotFoundMinioException e) {
+        log.debug("MinioException", e);
         return wrapToProblemDetail(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ResourceAlreadyExistsMinioException.class)
     public ProblemDetail handleResourceAlreadyExistsMinioException(ResourceAlreadyExistsMinioException e) {
+        log.debug("MinioException", e);
         return wrapToProblemDetail(e.getMessage(), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ProblemDetail handleConstraintViolationException(ConstraintViolationException e) {
-        return wrapToProblemDetail(e.getConstraintViolations().stream().findAny().get().getMessage(), HttpStatus.BAD_REQUEST);
+        return wrapToProblemDetail(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
@@ -51,7 +54,8 @@ public class GlobalExceptionAdvice {
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleInternalServerError(Exception e) {
-        log.error(e.getMessage(), e);
+        log.error("Undefined exception occurred: {}", e.getMessage());
+        log.debug("Full error details", e);
         return wrapToProblemDetail("Internal Server Error: %s".formatted(e.getClass()),
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }

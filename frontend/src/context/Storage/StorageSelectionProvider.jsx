@@ -15,6 +15,7 @@ export const StorageSelectionProvider = ({children}) => {
     const [bufferIds, setBufferIds] = useState([]);
 
 
+
     const startCutting = () => {
         setBufferIds(selectedIds);
         setCutMode(true);

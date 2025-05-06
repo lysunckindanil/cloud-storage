@@ -24,7 +24,7 @@ export const sendDownloadFile = async (downloadTask, updateTask, updateDownloadT
         try {
             let stats = await sendGetObjectStats(filePath);
             size = stats.size;
-        } catch (e) {
+        } catch (e){
             console.log('Не получилось извлечь размер папки')
             console.log(e);
         }

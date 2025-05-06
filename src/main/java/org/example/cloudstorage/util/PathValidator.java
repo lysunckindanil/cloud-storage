@@ -8,17 +8,16 @@ import java.util.regex.Pattern;
 public class PathValidator implements ConstraintValidator<Path, String> {
     @Override
     public boolean isValid(String key, ConstraintValidatorContext constraintValidatorContext) {
-        if (key.isEmpty() || key.length() > 1024) {
+        if (key.isEmpty())
+            return true;
+
+        if (key.length() > 1024) {
             return false;
         }
 
         Pattern validPathPattern = Pattern.compile("^[a-zA-Z0-9!\\-_.*'()/]+$");
 
         if (!validPathPattern.matcher(key).matches()) {
-            return false;
-        }
-
-        if (!key.equals("/") && (key.startsWith("/"))) {
             return false;
         }
 

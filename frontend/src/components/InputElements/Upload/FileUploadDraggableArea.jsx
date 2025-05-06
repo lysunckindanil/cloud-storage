@@ -80,7 +80,7 @@ export const FileUploadDraggableArea = ({dragRef, isDragging, setIsDragging}) =>
         Promise.all(droppedItems.map((item) => processItem(item)))
             .then(() => {
                 uploadObjects(newFiles);
-                if (newFiles.length === 0) {
+                if(newFiles.length === 0){
                     showWarn("Нельзя загружать пустые папки")
                 }
             });

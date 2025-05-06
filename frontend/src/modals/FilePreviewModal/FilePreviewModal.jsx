@@ -27,111 +27,111 @@ export default function FilePreviewModal({
     }
 
     return (
-        <Modal open={open} onClose={onClose} sx={{position: 'fixed', top: 0}}>
+        <Modal  open={open} onClose={onClose} sx={{position: 'fixed', top: 0}}>
 
-            <Card variant="outlined"
-                  sx={{
-                      display: 'flex',
+                <Card variant="outlined"
+                      sx={{
+                          display: 'flex',
 
-                      flexDirection: 'column',
-                      width: '100%',
-                      maxWidth: {md: '800px', xs: '90%'},
-                      pl: 2,
-                      pr: 2,
-                      position: 'fixed',
-                      transform: 'translate(-50%, -50%)',
-                      left: '50%',
-                      top: '50%',
-                      height: '500px',
+                          flexDirection: 'column',
+                          width: '100%',
+                          maxWidth: {md: '800px', xs: '90%'},
+                          pl: 2,
+                          pr: 2,
+                          position: 'fixed',
+                          transform: 'translate(-50%, -50%)',
+                          left: '50%',
+                          top: '50%',
+                          height: '500px',
 
-                      margin: 'auto',
-                      backgroundColor: "modal",
-                      backdropFilter: 'blur(16px)',
-                      WebkitBackdropFilter: 'blur(16px)',
-                      boxShadow: 5,
-                      borderRadius: 2,
-                      // position: "relative",
-                      zIndex: 200
-                  }}
-            >
-
-                <IconButton
-                    aria-label="close"
-                    size="small"
-                    onClick={onClose}
-                    sx={{
-                        position: 'absolute',
-                        top: 5,
-                        right: 5,
-                        width: '25px',
-                        height: '25px',
-                        zIndex: 200
-
-                    }}
+                          margin: 'auto',
+                          backgroundColor: "modal",
+                          backdropFilter: 'blur(16px)',
+                          WebkitBackdropFilter: 'blur(16px)',
+                          boxShadow: 5,
+                          borderRadius: 2,
+                          // position: "relative",
+                          zIndex: 200
+                      }}
                 >
-                    <CloseIcon sx={{fontSize: '25px'}}/>
-                </IconButton>
 
-                {object &&
+                    <IconButton
+                        aria-label="close"
+                        size="small"
+                        onClick={onClose}
+                        sx={{
+                            position: 'absolute',
+                            top: 5,
+                            right: 5,
+                            width: '25px',
+                            height: '25px',
+                            zIndex: 200
+
+                        }}
+                    >
+                        <CloseIcon sx={{fontSize: '25px'}}/>
+                    </IconButton>
+
+                    {object &&
                     <>
 
-                        <Box sx={{
-                            m: 1,
-                            pr: 2,
+                    <Box sx={{
+                        m: 1,
+                        pr: 2,
 
-                            // width: '100%',
+                        // width: '100%',
 
 
-                        }}>
-                            <Typography
-                                sx={{
-                                    width: '100%',
-                                    whiteSpace: 'nowrap',
-                                    userSelect: 'none',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                }}
-                            >{extractSimpleName(object.path)}</Typography>
-                        </Box>
+                    }}>
+                        <Typography
+                            sx={{
+                                width: '100%',
+                                whiteSpace: 'nowrap',
+                                userSelect: 'none',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                            }}
+                        >{extractSimpleName(object.path)}</Typography>
+                    </Box>
 
-                        <Box sx={{
-                            width: '100%',
-                            height: '100%',
-                            maxHeight: '500px',
-                            // backgroundColor: 'white',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            overflow: 'hidden',
-                        }}>
-                            {open && object && getContentViewer(format)}
+                    <Box sx={{
+                        width: '100%',
+                        height: '100%',
+                        maxHeight: '500px',
+                        // backgroundColor: 'white',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        overflow: 'hidden',
+                    }}>
+                        {open && object && getContentViewer(format)}
 
-                        </Box>
+                    </Box>
 
-                        <Box sx={{
-                            width: '50&',
-                            display: 'flex',
-                            mt: 1,
-                            mb: 1,
-                            height: '40px',
-                        }}>
-                            <Typography
-                                sx={{
-                                    width: '200px',
-                                    color: 'text.secondary',
-                                }}
-                            >Размер: {bytes(object.size)}</Typography>
-                            <Typography
-                                sx={{
-                                    width: '50%',
-                                    color: 'text.secondary',
-                                }}
-                            >{object.lastModified && "Изменен: " && formatDate(object.lastModified)}</Typography>
+                    <Box sx={{
+                        width: '50&',
+                        display: 'flex',
+                        mt: 1,
+                        mb: 1,
+                        height: '40px',
+                    }}>
+                        <Typography
+                            sx={{
+                                width: '200px',
+                                color: 'text.secondary',
+                            }}
+                        >Размер: {bytes(object.size)}</Typography>
+                        <Typography
+                            sx={{
+                                width: '50%',
+                                color: 'text.secondary',
+                            }}
+                        >{object.lastModified && "Изменен: " && formatDate(object.lastModified)}</Typography>
 
-                        </Box>
+                    </Box>
                     </>
-                }
-            </Card>
+                    }
+                </Card>
 
         </Modal>
     );

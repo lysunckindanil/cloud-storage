@@ -23,14 +23,7 @@ export const CustomBread = () => {
     }
 
     return (
-        <Box sx={{
-            display: 'flex',
-            mt: '10px',
-            maxHeight: '28px',
-            height: '28px',
-            alignContent: 'center',
-            alignItems: 'center'
-        }}>
+        <Box sx={{display: 'flex',mt: '10px', maxHeight: '28px',  height: '28px', alignContent: 'center', alignItems: 'center'}}>
             <Chip
                 icon={<HomeIcon/>}
                 onClick={() => loadFolder("")}
@@ -44,7 +37,7 @@ export const CustomBread = () => {
             {folderPath.length > 1 &&
                 <NavigateNextIcon sx={{color: 'text.secondary', height: '32px'}} fontSize="small"/>}
 
-            <Breadcrumbs sx={{ml: 1, minWidth: "max-content"}}
+            <Breadcrumbs sx={{ ml: 1, minWidth: "max-content"}}
                          separator={<NavigateNextIcon fontSize="small"/>}>
                 {folderPath.map((item, index) => {
                         let lastElement = index === folderPath.length - 1;

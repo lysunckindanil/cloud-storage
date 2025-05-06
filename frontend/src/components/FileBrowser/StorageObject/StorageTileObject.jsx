@@ -29,7 +29,7 @@ export default function StorageTileObject({object, style, selectedIds, bufferIds
     }
 
     const onDoubleClick = !isMob ? () => {
-        if (object.folder && !cutted) {
+        if (object.folder  && !cutted) {
             goToFolder(object.name);
             return;
         }
@@ -43,7 +43,7 @@ export default function StorageTileObject({object, style, selectedIds, bufferIds
         if (navigator.vibrate) {
             navigator.vibrate(70);
         }
-        if (!isSelectionMode && !isCutMode) {
+        if (!isSelectionMode && !isCutMode ) {
             setSelectionMode(true);
         }
     } : () => {
@@ -58,47 +58,45 @@ export default function StorageTileObject({object, style, selectedIds, bufferIds
 
 
     return (
-        <Card
-            data-id={object.path}
-            className={'selectable'}
-            onClick={onClick}
+                <Card
+                    data-id={object.path}
+                    className={'selectable'}
+                    onClick={onClick}
 
-            {...longPressEvent}
-            onDoubleClick={onDoubleClick}
-            sx={{
-                position: 'relative',
-                opacity: cutted ? 0.5 : 1,
-                minWidth: isLarge ? 160 : 100,
-                minHeight: isLarge ? 185 : 120,
-                maxHeight: isLarge ? 185 : 120,
+                    {...longPressEvent}
+                    onDoubleClick={onDoubleClick}
+                    sx={{
+                        position: 'relative',
+                        opacity:  cutted ? 0.5 : 1,
+                        minWidth: isLarge ? 160 : 100,
+                        minHeight: isLarge ? 185 : 120,
+                        maxHeight: isLarge ? 185 : 120,
 
-                backgroundColor: selected ? "objectSelected" : "transparent",
-                borderRadius: 2,
-                '&:hover': {
-                    backgroundColor: selected ? "objectSelected" : "objectHover",
-                }
-            }}
-            elevation={0}
-        >
+                        backgroundColor: selected ? "objectSelected" : "transparent",
+                        borderRadius: 2,
+                        '&:hover': {
+                            backgroundColor: selected ? "objectSelected" : "objectHover",
+                        }
+                    }}
+                    elevation={0}
+                >
 
-            <Box sx={{
-                width: '100%', height: '80%',
-                position: 'relative',
-                pl: '5px',
-                pr: '5px',
-                pt: '5px',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                overflow: 'hidden',
-            }}>
-                <FileFormatIcon name={object.name} style={style}/>
+                    <Box sx={{width: '100%', height: '80%',
+                        position: 'relative',
+                        pl: '5px',
+                        pr: '5px',
+                        pt: '5px',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        overflow: 'hidden',
+                    }}>
+                            <FileFormatIcon  name={object.name} style={style}/>
 
-                {cutted && <ContentCutIcon
-                    sx={{position: 'absolute', left: 0, top: 0, transform: 'translate(0%,0%)', zIndex: 40}}/>}
+                        {cutted && <ContentCutIcon sx={{position: 'absolute', left: 0, top: 0, transform: 'translate(0%,0%)', zIndex: 40}}/>}
 
-            </Box>
-            <ObjectName object={object}/>
-        </Card>
+                    </Box>
+                    <ObjectName object={object}/>
+                </Card>
     );
 }

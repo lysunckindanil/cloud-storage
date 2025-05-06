@@ -61,7 +61,7 @@ export const ObjectsContainer = () => {
 
     const handleKeyDown = (event) => {
         event.stopPropagation();
-        if (!allowShortcuts) {
+        if(!allowShortcuts){
             return;
         }
 
@@ -83,7 +83,7 @@ export const ObjectsContainer = () => {
             }
         }
 
-        if ((event.ctrlKey || event.metaKey) && allowToCut && (key === "v" || key === "V" || key === "м" || key === "М")) {
+        if ((event.ctrlKey || event.metaKey) && allowToCut &&(key === "v" || key === "V" || key === "м" || key === "М")) {
             event.preventDefault();
 
             if (bufferIds.length > 0) {

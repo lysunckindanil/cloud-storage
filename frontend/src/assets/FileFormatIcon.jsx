@@ -486,6 +486,9 @@ export const FileFormatIcon = ({name, style = 'regularTiles'}) => {
             break;
 
 
+
+
+
         case "threeGTwo":
             icon = threeGTwo;
             break;
@@ -1696,6 +1699,32 @@ export const FileFormatIcon = ({name, style = 'regularTiles'}) => {
         case "zsh":
             icon = zsh;
             break;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         default:

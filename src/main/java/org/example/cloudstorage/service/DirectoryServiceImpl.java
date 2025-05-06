@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static org.example.cloudstorage.constant.AppConstants.MINIO_USER_COMPLETE_PATH;
+import static org.example.cloudstorage.constant.AppConstants.MINIO_USER_PREFIX;
 
 @Service
 @RequiredArgsConstructor
@@ -21,9 +21,9 @@ public class DirectoryServiceImpl implements DirectoryService {
 
     @Override
     public List<ResourceResponseDto> get(String path, User user) {
-        String completePath = MINIO_USER_COMPLETE_PATH.formatted(user.getId(), path);
+        String completePath = MINIO_USER_PREFIX.formatted(user.getId()) + path;
         try {
-            return minioRepository.getListObjects(completePath, false)
+            return minioRepository.getList(completePath, false)
                     .stream()
                     .map(ResourceResponseDtoMapper::toDto)
                     .toList();
@@ -36,7 +36,7 @@ public class DirectoryServiceImpl implements DirectoryService {
 
     @Override
     public ResourceResponseDto create(String path, User user) {
-        String completePath = MINIO_USER_COMPLETE_PATH.formatted(user.getId(), path);
+        String completePath = MINIO_USER_PREFIX.formatted(user.getId()) + path;
         try {
             minioRepository.createEmptyDirectory(completePath);
         } catch (Exception e) {

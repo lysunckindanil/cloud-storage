@@ -106,7 +106,7 @@ export default function SearchObject({object, selectedIds, bufferIds, handlePrev
                     <Box sx={{position: 'absolute', width: '40px', left: 8, bottom: 10,}}>
 
 
-                        <FileFormatIcon name={object.name} style={''}/>
+                            <FileFormatIcon name={object.name} style={''}/>
 
                         {copied && <ContentCopyIcon
                             sx={{color: 'black', position: 'absolute', fontSize: '15px', bottom: 11, left: 3}}/>}

@@ -1,6 +1,7 @@
 package org.example.cloudstorage.mapper;
 
 import io.minio.messages.Item;
+import jakarta.annotation.Resource;
 import org.example.cloudstorage.dto.ResourceResponseDto;
 import org.example.cloudstorage.model.ResourceType;
 import org.example.cloudstorage.util.PathUtils;
@@ -19,12 +20,23 @@ public class ResourceResponseDtoMapper {
     }
 
     public static ResourceResponseDto toDto(String path) {
-        PathUtils.Breadcrumb breadcrumb = PathUtils.constructBreadcrumb(path, true, 1);
+        PathUtils.Breadcrumb breadcrumb = PathUtils.constructBreadcrumb(path.substring(0, path.length() - 2), true, 1);
         return ResourceResponseDto
                 .builder()
                 .name(breadcrumb.getName())
                 .path(breadcrumb.getPath())
                 .type(ResourceType.DIRECTORY)
+                .build();
+    }
+
+    public static ResourceResponseDto toDto(String path, Long size) {
+        PathUtils.Breadcrumb breadcrumb = PathUtils.constructBreadcrumb(path, false, 1);
+        return ResourceResponseDto
+                .builder()
+                .name(breadcrumb.getName())
+                .path(breadcrumb.getPath())
+                .size(size)
+                .type(ResourceType.FILE)
                 .build();
     }
 }

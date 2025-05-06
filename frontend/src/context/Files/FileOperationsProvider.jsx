@@ -20,7 +20,7 @@ export const useStorageOperations = () => useContext(FileOperationsContext);
 export const FileOperationsProvider = ({children}) => {
 
     const {loadFolder, currentPath, getObjectByPath, folderContent, currentPathRef} = useStorageNavigation();
-    const {isCutMode, bufferIds, endCopying, endCutting, selectedIds} = useStorageSelection();
+    const { isCutMode, bufferIds, endCopying, endCutting, selectedIds} = useStorageSelection();
 
     const [tasks, setTasks] = useState([]);
     const [newTasksAdded, setNewTasksAdded] = useState(false);
@@ -391,7 +391,7 @@ export const FileOperationsProvider = ({children}) => {
         if (isCutMode) {
             moveObjectInternal(bufferIds, currentPath + newName);
             endCutting();
-        } else {
+        }  else {
             const path = conflictedIds[0];
             let sep = path.lastIndexOf("/", path.length - 2);
             const newPath = path.substring(0, sep + 1) + newName;

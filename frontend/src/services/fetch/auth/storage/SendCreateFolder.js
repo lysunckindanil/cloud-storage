@@ -11,7 +11,7 @@ export const sendCreateFolder = async (path) => {
     console.log("Запрос на создание папки: " + path);
 
 
-    const params = new URLSearchParams({path: path});
+    const params = new URLSearchParams({ path: path});
 
     const url = `${API_DIRECTORY}?${params.toString()}`;
 

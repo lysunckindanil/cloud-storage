@@ -7,7 +7,7 @@ export default function ValidatedPasswordConfirmField({
                                                           confirmPassword, setConfirmPassword,
                                                           confirmPasswordError, setConfirmPasswordError,
                                                           originalPassword,
-                                                          label = "Подтверждение пароля"
+                                                          label="Подтверждение пароля"
                                                       }) {
 
     const validatePasswordConfirm = (value) => {

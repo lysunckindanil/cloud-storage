@@ -36,14 +36,14 @@ export default function Index() {
 
                 <Divider style={{marginTop: 20, marginBottom: 20, marginRight: 20, marginLeft: 20}}/>
 
-                <Box>
-                    <Typography variant="body1" className="col-lg-8 themed-grid-col text-center">
+                <Box >
+                    <Typography  variant="body1" className="col-lg-8 themed-grid-col text-center">
                         Подробнее с функционалом можно познакомиться на странице
                         <Typography fontWeight="bold" onClick={() => navigate("/help")}
-                                    sx={{
-                                        cursor: "pointer",
-                                        color: 'info.main',
-                                    }}
+                        sx={{
+                            cursor: "pointer",
+                            color: 'info.main',
+                        }}
                         >
                             помощи</Typography>
                     </Typography>

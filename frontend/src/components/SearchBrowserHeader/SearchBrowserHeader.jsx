@@ -50,6 +50,8 @@ export const SearchBrowserHeader = () => {
     }
 
 
+
+
     const scrollBoxRef = useRef(null);
 
     useEffect(() => {
@@ -118,7 +120,7 @@ export const SearchBrowserHeader = () => {
                     >
 
 
-                        <Button onClick={handleEndSearch} sx={{
+                        <Button onClick={handleEndSearch}   sx={{
                             minHeight: '42px',
                             minWidth: '42px',
                             background: 'linear-gradient(90deg, rgba(180,73,100,1) 0%, rgba(250,30,30,1) 100%)',

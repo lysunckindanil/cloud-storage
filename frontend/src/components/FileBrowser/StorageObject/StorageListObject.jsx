@@ -18,7 +18,7 @@ export default function StorageListObject({object, style, selectedIds, bufferIds
     const {setSelectionMode, isSelectionMode, isCopyMode} = useStorageSelection();
 
     const onClick = isMob ? () => {
-        if (object.folder && !isSelectionMode && !cutted) {
+        if (object.folder && !isSelectionMode &&  !cutted) {
             goToFolder(object.name);
             return;
         }
@@ -29,7 +29,7 @@ export default function StorageListObject({object, style, selectedIds, bufferIds
     }
 
     const onDoubleClick = !isMob ? () => {
-        if (object.folder && !cutted) {
+        if (object.folder &&  !cutted) {
             goToFolder(object.name);
             return;
         }
@@ -64,7 +64,7 @@ export default function StorageListObject({object, style, selectedIds, bufferIds
             sx={{
                 position: 'relative',
                 minWidth: 20,
-                opacity: cutted ? 0.5 : 1,
+                opacity:  cutted ? 0.5 : 1,
                 minHeight: 50,
                 backgroundColor: selected ? "objectSelected" : "transparent",
                 borderRadius: 2,

@@ -1,56 +1,58 @@
 window.APP_CONFIG = {
+
     //ссылка на ваш гитхаб репозиторий с проектом
-    githubLink:
-        "https://gist.github.com/zhukovsd/1052313b231bb1eebd5b910990ee1050",
+    githubLink: "https://gist.github.com/zhukovsd/1052313b231bb1eebd5b910990ee1050",
 
     //Имя, которое отображается в хедере
     mainName: "CLOUD STORAGE",
 
     //адрес вашего бэка. если пустой - значит на одном url с таким же портом.
     //если запускаете бэк и фронт через докер compose - тут ставите имя бэка в докер сети
-    baseUrl: "http://localhost:8080",
+    baseUrl: process.env.BACKEND_URL || "http://localhost:8080",
 
     //API префикс вашего бэка
     baseApi: "",
 
+
     /*
-     *
-     * Конфигурация валидации форм
-     *
-     * */
+    *
+    * Конфигурация валидации форм
+    *
+    * */
 
     //Если true - форма будет валидироваться,
     //ошибки будут отображаться при вводе. Кнопка будет активна только при валидных данных
     //Если false - форму можно отправить без валидации.
-    validateLoginForm: true,
-    validateRegistrationForm: true,
+    validateLoginForm: false,
+    validateRegistrationForm: false,
 
     //корректное имя пользователя
     validUsername: {
-        minLength: 3,
+        minLength: 5,
         maxLength: 20,
-        pattern: '^[^/\\\\:*?"<>|]+$',
+        pattern: "^[a-zA-Z0-9]+[a-zA-Z_0-9]*[a-zA-Z0-9]+$",
     },
 
     //корректный пароль
     validPassword: {
-        minLength: 3,
+        minLength: 5,
         maxLength: 20,
-        pattern: '^[^/\\\\:*?"<>|]+$',
+        pattern: "^[a-zA-Z0-9!@#$%^&*(),.?\":{}|<>[\\]/`~+=-_';]*$",
     },
 
     //корректное имя для папки
     validFolderName: {
         minLength: 1,
         maxLength: 200,
-        pattern: '^[^/\\\\:*?"<>|]+$',
+        pattern: "^[^/\\\\:*?\"<>|]+$",
     },
 
+
     /*
-     *
-     * Утилитные конфигурации
-     *
-     * */
+    *
+    * Утилитные конфигурации
+    *
+    * */
 
     //Разрешать ли перемещение выделенных файлов и папок с помощью перетаскивания в соседние папки. (drag n drop)
     isMoveAllowed: true,
@@ -66,6 +68,7 @@ window.APP_CONFIG = {
 
     //набор утилитных функций для взаимодействия с фронтом.
     functions: {
+
         //функциия для маппинга формата данных бэка в формат фронта.
         //Если бэк с форматом Сергея - можно не менять.
         //Какие особенности формата ФРОНТА есть (если бэк отличается и вы будете реализовывать свой функционал)
@@ -83,8 +86,10 @@ window.APP_CONFIG = {
                 name: obj.name,
                 size: obj.size,
                 path: obj.path + obj.name, //путь в полном формате необходим для корректной навигации
-                folder: obj.type === "DIRECTORY", // фронт использует простой boolean. Если папка имеет другое название - смените
-            };
+                folder: obj.type === "DIRECTORY" // фронт использует простой boolean. Если папка имеет другое название - смените
+            }
         },
-    },
+
+    }
+
 };
