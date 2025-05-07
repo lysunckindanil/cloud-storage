@@ -1,4 +1,4 @@
-package org.example.cloudstorage.controller;
+package org.example.cloudstorage.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.cloudstorage.config.MinioMockConfig;
@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.stream.Stream;
 
-import static org.example.cloudstorage.controller.AuthenticationTest.Stub.*;
+import static org.example.cloudstorage.security.AuthenticationValidationTest.Stub.*;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -39,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({PostgresContainerConfig.class, RedisContainerConfig.class, MinioMockConfig.class})
 @AutoConfigureMockMvc
 @Transactional
-class AuthenticationTest {
+class AuthenticationValidationTest {
     @Autowired
     private ObjectMapper mapper;
 

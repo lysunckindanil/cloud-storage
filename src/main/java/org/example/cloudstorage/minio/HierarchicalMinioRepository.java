@@ -68,10 +68,9 @@ public class HierarchicalMinioRepository {
 
     public InputStreamResource download(String path) {
         if (!path.endsWith("/")) {
-            return new InputStreamResource(minioRepository.downloadObject(path));
-        } else {
             return downloadAsZip(path);
         }
+        return new InputStreamResource(minioRepository.downloadObject(path));
     }
 
     public void createEmptyDirectory(String path) {

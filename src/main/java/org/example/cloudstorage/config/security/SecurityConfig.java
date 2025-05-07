@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
@@ -42,6 +43,12 @@ public class SecurityConfig {
     private void logoutConf(LogoutConfigurer<HttpSecurity> http) {
         http
                 .logoutUrl("/auth/sign-out")
+                .permitAll(false)
+                .permitAll(false)
+                .logoutRequestMatcher(request ->
+                        SecurityContextHolder.getContext().getAuthentication() != null &&
+                                SecurityContextHolder.getContext().getAuthentication().isAuthenticated()
+                )
                 .logoutSuccessHandler((
                         (request, response, authentication)
                                 -> response.setStatus(HttpServletResponse.SC_NO_CONTENT)));
@@ -49,11 +56,11 @@ public class SecurityConfig {
 
     private void requestsMatchersConf(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry authorize) {
         authorize
-                .requestMatchers("/auth/sign-in", "/auth/sign-up").anonymous()
+                .requestMatchers("/auth/sign-in", "/auth/sign-up").permitAll()
                 .anyRequest().authenticated();
     }
 
-    private void exceptionHandlingConf(ExceptionHandlingConfigurer handling) {
+    private void exceptionHandlingConf(ExceptionHandlingConfigurer<HttpSecurity> handling) {
         handling.authenticationEntryPoint(
                 (request, response, ex)
                         -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED)
