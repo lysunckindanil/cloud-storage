@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.example.cloudstorage.dto.user.UserLoginRequest;
 import org.example.cloudstorage.dto.user.UsernameResponseDto;
-import org.example.cloudstorage.exception.CustomAuthenticationValidationException;
+import org.example.cloudstorage.exception.AuthenticationValidationException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -45,7 +45,7 @@ public class CustomAuthenticationFilter extends AbstractAuthenticationProcessing
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException {
         if (request.getContentType() == null || !request.getContentType().equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)) {
-            throw new CustomAuthenticationValidationException("Unsupported content type");
+            throw new AuthenticationValidationException("Unsupported content type");
         }
 
         try (InputStream inputStream = request.getInputStream()) {
@@ -60,7 +60,7 @@ public class CustomAuthenticationFilter extends AbstractAuthenticationProcessing
 
             return getAuthenticationManager().authenticate(authRequest);
         } catch (JsonProcessingException e) {
-            throw new CustomAuthenticationValidationException("Unsupported JSON format");
+            throw new AuthenticationValidationException("Unsupported JSON format");
         }
     }
 
@@ -82,7 +82,7 @@ public class CustomAuthenticationFilter extends AbstractAuthenticationProcessing
             int status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
             String message = "Internal Server Error";
 
-            if (exception instanceof CustomAuthenticationValidationException) {
+            if (exception instanceof AuthenticationValidationException) {
                 status = HttpServletResponse.SC_BAD_REQUEST;
                 message = exception.getMessage();
             } else if (exception instanceof BadCredentialsException) {

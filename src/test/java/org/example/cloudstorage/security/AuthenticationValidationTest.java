@@ -49,7 +49,6 @@ class AuthenticationValidationTest {
     @Autowired
     MockMvc mvc;
 
-
     static class Stub {
         static final String USERNAME = "username";
         static final String PASSWORD = "password";

@@ -4,7 +4,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-import org.example.cloudstorage.exception.CustomAuthenticationValidationException;
+import org.example.cloudstorage.exception.AuthenticationValidationException;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -15,7 +15,7 @@ public class AuthenticationRequestValidator {
             Validator validator = factory.getValidator();
             Set<ConstraintViolation<T>> violations = validator.validate(request);
             if (!violations.isEmpty())
-                throw new CustomAuthenticationValidationException(
+                throw new AuthenticationValidationException(
                         violations.stream()
                                 .map(violation -> violation.getPropertyPath() + " " + violation.getMessage())
                                 .collect(Collectors.joining(", ")));

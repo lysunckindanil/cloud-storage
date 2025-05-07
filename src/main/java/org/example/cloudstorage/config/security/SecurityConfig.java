@@ -2,6 +2,7 @@ package org.example.cloudstorage.config.security;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.example.cloudstorage.filter.CheckAuthenticationBeforeLogoutFilter;
 import org.example.cloudstorage.filter.CustomAuthenticationFilter;
 import org.example.cloudstorage.filter.RegistrationFilter;
 import org.springframework.context.annotation.Bean;
@@ -11,9 +12,9 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -24,11 +25,13 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
     private final CustomAuthenticationFilter customAuthenticationFilter;
     private final RegistrationFilter registrationFilter;
+    private final CheckAuthenticationBeforeLogoutFilter checkAuthenticationBeforeLogoutFilter;
     private final SecurityContextRepository contextRepo;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .addFilterBefore(checkAuthenticationBeforeLogoutFilter, LogoutFilter.class)
                 .addFilterAt(customAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(registrationFilter, UsernamePasswordAuthenticationFilter.class)
                 .securityContext(context -> context.securityContextRepository(contextRepo))
@@ -44,20 +47,13 @@ public class SecurityConfig {
         http
                 .logoutUrl("/auth/sign-out")
                 .permitAll(false)
-                .permitAll(false)
-                .logoutRequestMatcher(request ->
-                        SecurityContextHolder.getContext().getAuthentication() != null &&
-                                SecurityContextHolder.getContext().getAuthentication().isAuthenticated()
-                )
                 .logoutSuccessHandler((
                         (request, response, authentication)
                                 -> response.setStatus(HttpServletResponse.SC_NO_CONTENT)));
     }
 
     private void requestsMatchersConf(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry authorize) {
-        authorize
-                .requestMatchers("/auth/sign-in", "/auth/sign-up").permitAll()
-                .anyRequest().authenticated();
+        authorize.anyRequest().authenticated();
     }
 
     private void exceptionHandlingConf(ExceptionHandlingConfigurer<HttpSecurity> handling) {

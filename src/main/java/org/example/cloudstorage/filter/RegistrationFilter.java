@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.example.cloudstorage.dto.user.UserRegisterRequest;
 import org.example.cloudstorage.dto.user.UsernameResponseDto;
-import org.example.cloudstorage.exception.CustomAuthenticationValidationException;
+import org.example.cloudstorage.exception.AuthenticationValidationException;
 import org.example.cloudstorage.exception.UserWithThisNameAlreadyExistsException;
 import org.example.cloudstorage.mapper.UserMapper;
 import org.example.cloudstorage.service.UserService;
@@ -53,7 +53,7 @@ public class RegistrationFilter extends AbstractAuthenticationProcessingFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException {
         if (request.getContentType() == null || !request.getContentType().equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)) {
-            throw new CustomAuthenticationValidationException("Unsupported content type");
+            throw new AuthenticationValidationException("Unsupported content type");
         }
 
         try (InputStream inputStream = request.getInputStream()) {
@@ -65,7 +65,7 @@ public class RegistrationFilter extends AbstractAuthenticationProcessingFilter {
             log.debug("User successfully registered ({}; {})", user.getUsername(), user.getAuthorities());
             return UsernamePasswordAuthenticationToken.authenticated(user, null, user.getAuthorities());
         } catch (JsonProcessingException e) {
-            throw new CustomAuthenticationValidationException("Unsupported JSON format");
+            throw new AuthenticationValidationException("Unsupported JSON format");
         } catch (DataIntegrityViolationException e) {
             throw new UserWithThisNameAlreadyExistsException("Username already exists");
         }
@@ -89,7 +89,7 @@ public class RegistrationFilter extends AbstractAuthenticationProcessingFilter {
             int status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
             String message = "Internal Server Error";
 
-            if (exception instanceof CustomAuthenticationValidationException) {
+            if (exception instanceof AuthenticationValidationException) {
                 status = HttpServletResponse.SC_BAD_REQUEST;
                 message = exception.getMessage();
             } else if (exception instanceof UserWithThisNameAlreadyExistsException) {

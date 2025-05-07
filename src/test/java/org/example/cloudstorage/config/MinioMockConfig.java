@@ -1,6 +1,7 @@
 package org.example.cloudstorage.config;
 
 import io.minio.MinioClient;
+import org.example.cloudstorage.minio.HierarchicalMinioRepository;
 import org.example.cloudstorage.minio.MinioRepository;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +18,8 @@ public class MinioMockConfig {
     }
 
     @Bean
-    public MinioRepository minioRepository(MinioClient minioClient) {
-        return new MinioRepository(minioClient, "mock");
+    public HierarchicalMinioRepository minioRepository(MinioClient minioClient) {
+        var repo = new MinioRepository(minioClient, "mock");
+        return new HierarchicalMinioRepository(repo);
     }
 }
