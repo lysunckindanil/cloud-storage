@@ -19,6 +19,7 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.Collection;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -57,6 +58,8 @@ public class HierarchicalMinioRepository {
 
     public void upload(String path, Collection<MultipartFile> files) {
         for (MultipartFile file : files) {
+            if (file.getOriginalFilename() == null) throw new MinioException("Invalid file");
+            createMissingDirectories(path, file.getOriginalFilename());
             minioRepository.uploadObject(path, file);
         }
     }
@@ -132,4 +135,15 @@ public class HierarchicalMinioRepository {
         return true;
     }
 
+    private void createMissingDirectories(String path, String additionDir) {
+        if (!additionDir.contains("/"))
+            return;
+
+        String[] dirs = additionDir.substring(0, additionDir.lastIndexOf("/")).split("/");
+        StringJoiner joiner = new StringJoiner("/");
+        for (String dir : dirs) {
+            joiner.add(dir);
+            createEmptyDirectory(path + joiner + "/");
+        }
+    }
 }
