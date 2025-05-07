@@ -1,4 +1,4 @@
-package org.example.cloudstorage.exception;
+package org.example.cloudstorage.exception.minio;
 
 public class MinioException extends RuntimeException {
     public MinioException(String message) {

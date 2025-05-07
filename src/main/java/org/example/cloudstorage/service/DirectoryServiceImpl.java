@@ -3,7 +3,7 @@ package org.example.cloudstorage.service;
 import lombok.RequiredArgsConstructor;
 import org.example.cloudstorage.dto.ResourceResponseDto;
 import org.example.cloudstorage.entity.User;
-import org.example.cloudstorage.exception.MinioException;
+import org.example.cloudstorage.exception.minio.MinioException;
 import org.example.cloudstorage.mapper.ResourceResponseDtoMapper;
 import org.example.cloudstorage.minio.HierarchicalMinioRepository;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ public class DirectoryServiceImpl implements DirectoryService {
     public List<ResourceResponseDto> get(String path, User user) {
         String completePath = MINIO_USER_PREFIX.formatted(user.getId()) + path;
 
-        return minioRepository.getList(completePath, false)
+        return minioRepository.listResources(completePath, false)
                 .stream()
                 .map(ResourceResponseDtoMapper::toDto)
                 .toList();

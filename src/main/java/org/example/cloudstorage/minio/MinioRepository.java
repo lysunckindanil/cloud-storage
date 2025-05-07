@@ -4,16 +4,19 @@ import io.minio.*;
 import io.minio.errors.ErrorResponseException;
 import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
-import org.example.cloudstorage.exception.InvalidFilenameMinioException;
-import org.example.cloudstorage.exception.MinioException;
-import org.example.cloudstorage.exception.ResourceNotFoundMinioException;
+import org.example.cloudstorage.exception.minio.InvalidPathMinioException;
+import org.example.cloudstorage.exception.minio.MinioException;
+import org.example.cloudstorage.exception.minio.ResourceAlreadyExistsMinioException;
+import org.example.cloudstorage.exception.minio.ResourceNotFoundMinioException;
 import org.example.cloudstorage.util.PathUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @RequiredArgsConstructor
@@ -32,22 +35,6 @@ public class MinioRepository {
                             .bucket(bucketName)
                             .object(path)
                             .build());
-        } catch (ErrorResponseException e) {
-            throw new ResourceNotFoundMinioException(e);
-        } catch (Exception e) {
-            throw new MinioException(e);
-        }
-    }
-
-    public InputStream downloadObject(String path) {
-        path = PathUtils.normalizePathAsMinioKey(path);
-
-        try {
-            return minioClient.getObject(GetObjectArgs
-                    .builder()
-                    .bucket(bucketName)
-                    .object(path)
-                    .build());
         } catch (ErrorResponseException e) {
             throw new ResourceNotFoundMinioException(e);
         } catch (Exception e) {
@@ -77,22 +64,43 @@ public class MinioRepository {
         return items;
     }
 
+    public InputStream downloadObject(String path) {
+        path = PathUtils.normalizePathAsMinioKey(path);
+
+        try {
+            return minioClient.getObject(GetObjectArgs
+                    .builder()
+                    .bucket(bucketName)
+                    .object(path)
+                    .build());
+        } catch (ErrorResponseException e) {
+            throw new ResourceNotFoundMinioException(e);
+        } catch (Exception e) {
+            throw new MinioException(e);
+        }
+    }
+
     public void uploadObject(String path, MultipartFile file) {
         String uploadPath = PathUtils.normalizePathAsMinioKey(path + file.getOriginalFilename());
         if (!PathUtils.isPathValid(uploadPath))
-            throw new InvalidFilenameMinioException("Don't support symbols in filename: %s"
-                    .formatted(file.getOriginalFilename()));
+            throw new InvalidPathMinioException("Invalid path: " + uploadPath);
 
+        Map<String, String> headers = new HashMap<>();
+        headers.put("If-None-Match", "*");
         try {
             minioClient.putObject(
                     PutObjectArgs.builder()
                             .bucket(bucketName)
                             .object(uploadPath)
+                            .headers(headers)
                             .stream(file.getInputStream(), file.getSize(), -1)
                             .contentType(file.getContentType())
                             .build());
         } catch (ErrorResponseException e) {
-            throw new ResourceNotFoundMinioException(e);
+            if (e.errorResponse().code().equals("PreconditionFailed")) {
+                throw new ResourceAlreadyExistsMinioException("File already exists: " + file.getOriginalFilename());
+            }
+            throw new MinioException(e);
         } catch (Exception e) {
             throw new MinioException(e);
         }
@@ -113,7 +121,7 @@ public class MinioRepository {
         }
     }
 
-    public void createEmptyFile(String path) {
+    public void createEmptyObject(String path) {
         path = PathUtils.normalizePathAsMinioKey(path);
         try {
             minioClient.putObject(

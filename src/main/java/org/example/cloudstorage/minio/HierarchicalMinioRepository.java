@@ -3,8 +3,9 @@ package org.example.cloudstorage.minio;
 import io.minio.StatObjectResponse;
 import io.minio.messages.Item;
 import lombok.extern.slf4j.Slf4j;
-import org.example.cloudstorage.exception.MinioException;
-import org.example.cloudstorage.exception.ResourceNotFoundMinioException;
+import org.example.cloudstorage.exception.minio.MinioException;
+import org.example.cloudstorage.exception.minio.PartialDeletionMinioException;
+import org.example.cloudstorage.exception.minio.ResourceNotFoundMinioException;
 import org.example.cloudstorage.util.PathUtils;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,25 +29,24 @@ public class HierarchicalMinioRepository {
         this.minioRepository = minioRepository;
     }
 
-    public boolean existsByPath(String path) {
-        path = PathUtils.normalizePathAsMinioKey(path);
-        if (path.endsWith("/")) {
-            path = path + MINIO_FOLDER_POSTFIX;
-        }
-        try {
-            minioRepository.getObject(path);
-        } catch (ResourceNotFoundMinioException e) {
-            return false;
-        }
-        return true;
+    public ObjectMetadata getResource(String path) {
+        boolean isDir = path.endsWith("/");
+        StatObjectResponse statObject = minioRepository.getObject(
+                isDir ? path + MINIO_FOLDER_POSTFIX : path
+        );
+
+        return new ObjectMetadata(
+                statObject.object(),
+                isDir,
+                statObject.size()
+        );
     }
 
-
-    public List<Item> getList(String path, boolean recursive) {
-        path = PathUtils.normalizePathAsMinioKey(path);
+    public List<ObjectMetadata> listResources(String path, boolean recursive) {
         if (!existsByPath(path)) throw new ResourceNotFoundMinioException("Folder is not found");
         return minioRepository.getListObjects(path, recursive).stream()
                 .filter(item -> !item.objectName().endsWith(MINIO_FOLDER_POSTFIX))
+                .map(item -> new ObjectMetadata(item.objectName(), item.isDir(), item.size()))
                 .toList();
     }
 
@@ -57,11 +57,14 @@ public class HierarchicalMinioRepository {
     }
 
     public void delete(String path) {
-        for (Item item : minioRepository.getListObjects(path, true)) {
-            minioRepository.deleteObject(item.objectName());
+        try {
+            for (Item item : minioRepository.getListObjects(path, true)) {
+                minioRepository.deleteObject(item.objectName());
+            }
+        } catch (MinioException e) {
+            throw new PartialDeletionMinioException(e);
         }
     }
-
 
     public InputStreamResource download(String path) {
         if (!path.endsWith("/")) {
@@ -71,37 +74,9 @@ public class HierarchicalMinioRepository {
         }
     }
 
-    public Item getByPath(String path) {
-        boolean isDir = path.endsWith("/");
-        StatObjectResponse statObject = minioRepository.getObject(
-                isDir ? path + MINIO_FOLDER_POSTFIX : path
-        );
-
-        return new Item() {
-            @Override
-            public boolean isDir() {
-                return isDir;
-            }
-
-            @Override
-            public long size() {
-                return statObject.size();
-            }
-
-            @Override
-            public String objectName() {
-                return isDir
-                        ?
-                        statObject.object().substring(0, statObject.object().length() - MINIO_FOLDER_POSTFIX.length())
-                        :
-                        statObject.object();
-            }
-        };
-    }
-
     public void createEmptyDirectory(String path) {
         path = PathUtils.normalizePathAsMinioKey(path);
-        minioRepository.createEmptyFile(path + MINIO_FOLDER_POSTFIX);
+        minioRepository.createEmptyObject(path + MINIO_FOLDER_POSTFIX);
     }
 
     private InputStreamResource downloadAsZip(String path) {
@@ -141,4 +116,17 @@ public class HierarchicalMinioRepository {
             throw new MinioException("Unable to download folder as zip", ex);
         }
     }
+
+    private boolean existsByPath(String path) {
+        if (path.endsWith("/")) {
+            path = path + MINIO_FOLDER_POSTFIX;
+        }
+        try {
+            minioRepository.getObject(path);
+        } catch (ResourceNotFoundMinioException e) {
+            return false;
+        }
+        return true;
+    }
+
 }

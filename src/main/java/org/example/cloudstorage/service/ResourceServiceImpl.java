@@ -3,7 +3,6 @@ package org.example.cloudstorage.service;
 import lombok.RequiredArgsConstructor;
 import org.example.cloudstorage.dto.ResourceResponseDto;
 import org.example.cloudstorage.entity.User;
-import org.example.cloudstorage.exception.ResourceAlreadyExistsMinioException;
 import org.example.cloudstorage.mapper.ResourceResponseDtoMapper;
 import org.example.cloudstorage.minio.HierarchicalMinioRepository;
 import org.springframework.core.io.InputStreamResource;
@@ -22,7 +21,7 @@ public class ResourceServiceImpl implements ResourceService {
     @Override
     public ResourceResponseDto get(String path, User user) {
         String completePath = MINIO_USER_PREFIX.formatted(user.getId()) + path;
-        return ResourceResponseDtoMapper.toDto(minioRepository.getByPath(completePath));
+        return ResourceResponseDtoMapper.toDto(minioRepository.getResource(completePath));
     }
 
     @Override
@@ -50,15 +49,9 @@ public class ResourceServiceImpl implements ResourceService {
     @Override
     public List<ResourceResponseDto> upload(String path, List<MultipartFile> files, User user) {
         String completePath = MINIO_USER_PREFIX.formatted(user.getId()) + path;
-
-        for (MultipartFile file : files) {
-            if (minioRepository.existsByPath(completePath + "/" + file.getOriginalFilename()))
-                throw new ResourceAlreadyExistsMinioException("File already exists: %s"
-                        .formatted(file.getOriginalFilename()));
-        }
-
         minioRepository.upload(completePath, files);
-        return minioRepository.getList(completePath, true)
+
+        return minioRepository.listResources(completePath, true)
                 .stream()
                 .map(ResourceResponseDtoMapper::toDto)
                 .toList();

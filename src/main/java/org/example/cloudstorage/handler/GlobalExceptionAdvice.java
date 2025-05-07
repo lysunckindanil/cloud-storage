@@ -2,10 +2,7 @@ package org.example.cloudstorage.handler;
 
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
-import org.example.cloudstorage.exception.InvalidFilenameMinioException;
-import org.example.cloudstorage.exception.MinioException;
-import org.example.cloudstorage.exception.ResourceAlreadyExistsMinioException;
-import org.example.cloudstorage.exception.ResourceNotFoundMinioException;
+import org.example.cloudstorage.exception.minio.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -17,11 +14,18 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 @RestControllerAdvice
 public class GlobalExceptionAdvice {
 
-    @ExceptionHandler(InvalidFilenameMinioException.class)
-    public ProblemDetail handleInvalidFilenameMinioException(InvalidFilenameMinioException e) {
+    @ExceptionHandler(InvalidPathMinioException.class)
+    public ProblemDetail handleInvalidFilenameMinioException(InvalidPathMinioException e) {
         log.debug("MinioException", e);
-        return wrapToProblemDetail(e.getMessage(), HttpStatus.BAD_REQUEST);
+        return wrapToProblemDetail("Provided invalid path", HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(PartialDeletionMinioException.class)
+    public ProblemDetail handlePartialDeletionMinioException(PartialDeletionMinioException e) {
+        log.debug("MinioException", e);
+        return wrapToProblemDetail("Failed to delete some of the files", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 
     @ExceptionHandler(ResourceNotFoundMinioException.class)
     public ProblemDetail handleResourceNotFoundMinioException(ResourceNotFoundMinioException e) {

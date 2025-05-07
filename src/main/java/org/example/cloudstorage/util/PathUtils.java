@@ -10,6 +10,9 @@ import java.util.regex.Pattern;
 
 public class PathUtils {
 
+    private static final Pattern VALID_PATH_PATTERN =
+            Pattern.compile("^[a-zA-Zа-яА-Я0-9!\\-_.*'()/+ ]+$");
+
     /**
      * Returns breadcrumb for file or directory path
      * <p>
@@ -53,15 +56,18 @@ public class PathUtils {
             return false;
         }
 
-        Pattern validPathPattern = Pattern.compile("^[a-zA-Zа-яА-Я0-9!\\-_.*'()/+ ]+$");
-
-        if (!validPathPattern.matcher(path).matches()) {
+        if (!VALID_PATH_PATTERN.matcher(path).matches()) {
             return false;
         }
 
         if (path.contains("//")) {
             return false;
         }
+
+        if (path.contains("..")) {
+            return false;
+        }
+
 
         return true;
     }
