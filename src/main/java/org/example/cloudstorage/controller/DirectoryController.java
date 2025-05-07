@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.cloudstorage.dto.ResourceResponseDto;
 import org.example.cloudstorage.entity.User;
 import org.example.cloudstorage.service.DirectoryService;
-import org.example.cloudstorage.util.Path;
+import org.example.cloudstorage.util.validation.Path;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

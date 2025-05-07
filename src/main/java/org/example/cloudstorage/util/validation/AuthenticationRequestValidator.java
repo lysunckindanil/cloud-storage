@@ -1,4 +1,4 @@
-package org.example.cloudstorage.util;
+package org.example.cloudstorage.util.validation;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;

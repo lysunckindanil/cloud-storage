@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.cloudstorage.dto.ResourceResponseDto;
 import org.example.cloudstorage.entity.User;
 import org.example.cloudstorage.service.ResourceService;
-import org.example.cloudstorage.util.Path;
+import org.example.cloudstorage.util.validation.Path;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.*;

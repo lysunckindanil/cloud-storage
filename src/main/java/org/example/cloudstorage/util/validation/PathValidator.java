@@ -1,7 +1,8 @@
-package org.example.cloudstorage.util;
+package org.example.cloudstorage.util.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import org.example.cloudstorage.util.PathUtils;
 
 public class PathValidator implements ConstraintValidator<Path, String> {
     @Override
