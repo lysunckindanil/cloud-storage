@@ -14,15 +14,17 @@ public class PathUtils {
             Pattern.compile("^[a-zA-Zа-яА-Я0-9!\\-_.*'()/+ ]+$");
 
     /**
-     * Returns breadcrumb for file or directory path
-     * <p>
-     * Name conventions
-     * If a path is directory => name = 'folder_name/'
-     * If a path is a file => name = 'file_name'
-     * <p>
-     * Path conventions
-     * If a path is root => path = '/'
-     * or else path is parent of file/directory
+     * <h3>Returns breadcrumb for file or directory path</h3>
+     *
+     * <h6>Name conventions</h6>
+     * <li>If a path leads to a directory => name = 'folder_name/'</li>
+     * <li>If a path leads to a file => name = 'file_name'</li>
+     *
+     * <h6>Path conventions</h6>
+     * <li>If a path is root => path = '/'</li>
+     * <li>path never starts with '/' (despite root directory) and always ends with '/'</li>
+     *
+     * <h6>Commons</h6>
      *
      * @param path        file/directory path; expected that valid; '+' will be replaced with space
      * @param isDir       to mark the path as file or directory
@@ -67,7 +69,6 @@ public class PathUtils {
         if (path.contains("..")) {
             return false;
         }
-
 
         return true;
     }
