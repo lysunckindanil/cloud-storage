@@ -202,7 +202,7 @@ class MinioRepositoryTest {
 
     @Test
     @DisplayName("deleteObject throws error if doesn't exist")
-    void deleteObject_doesntExist_ThrowsError() throws Exception {
+    void deleteObject_doesntExist_ThrowsError() {
         String objectName = "test.txt";
         assertThrows(ResourceNotFoundMinioException.class, () -> minioRepository.deleteObject(objectName));
     }
