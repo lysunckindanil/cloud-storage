@@ -108,12 +108,13 @@ public class MinioRepository {
     public void deleteObject(String path) {
         path = PathUtils.normalizePathAsMinioKey(path);
         try {
+            String objectName = getObject(path).object();
             minioClient.removeObject(
                     RemoveObjectArgs.builder()
                             .bucket(bucketName)
-                            .object(path)
+                            .object(objectName)
                             .build());
-        } catch (ErrorResponseException e) {
+        } catch (ResourceNotFoundMinioException e) {
             throw new ResourceNotFoundMinioException(e);
         } catch (Exception e) {
             throw new MinioException(e);

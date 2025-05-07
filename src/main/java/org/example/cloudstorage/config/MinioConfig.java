@@ -18,23 +18,24 @@ import java.util.concurrent.TimeUnit;
 public class MinioConfig {
 
     @Bean
-    public MinioClient minioClient(MinioProperties minioProperties) {
+    public MinioClient minioClient(MinioProperties minioProperties) throws Exception {
         OkHttpClient httpClient = new OkHttpClient.Builder()
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(60, TimeUnit.SECONDS)
                 .readTimeout(60, TimeUnit.SECONDS)
                 .build();
 
-        return MinioClient.builder()
+        var client = MinioClient.builder()
                 .endpoint(minioProperties.getUrl())
                 .credentials(minioProperties.getAccessKey(), minioProperties.getSecretKey())
                 .httpClient(httpClient)
                 .build();
+        createBucketIfNotExists(client, minioProperties.getBucketName());
+        return client;
     }
 
     @Bean
-    public HierarchicalMinioRepository minioRepository(MinioClient minioClient, MinioProperties minioProperties) throws Exception {
-        createBucketIfNotExists(minioClient, minioProperties.getBucketName());
+    public HierarchicalMinioRepository minioRepository(MinioClient minioClient, MinioProperties minioProperties) {
         return new HierarchicalMinioRepository(new MinioRepository(minioClient, minioProperties.getBucketName()));
     }
 

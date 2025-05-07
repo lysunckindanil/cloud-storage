@@ -2,6 +2,9 @@ package org.example.cloudstorage.minio;
 
 import io.minio.StatObjectResponse;
 import io.minio.messages.Item;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.example.cloudstorage.exception.minio.MinioException;
 import org.example.cloudstorage.exception.minio.PartialDeletionMinioException;
@@ -21,19 +24,20 @@ import java.util.zip.ZipOutputStream;
 
 
 @Slf4j
+@RequiredArgsConstructor
 public class HierarchicalMinioRepository {
-    private static final String MINIO_FOLDER_POSTFIX = "$";
+
+    private static final String DEFAULT_FOLDER_POSTFIX = "$";
+    @Getter
+    @Setter
+    private String folderPostfix = DEFAULT_FOLDER_POSTFIX;
 
     private final MinioRepository minioRepository;
-
-    public HierarchicalMinioRepository(MinioRepository minioRepository) {
-        this.minioRepository = minioRepository;
-    }
 
     public ObjectMetadata getResource(String path) {
         boolean isDir = path.endsWith("/");
         StatObjectResponse statObject = minioRepository.getObject(
-                isDir ? path + MINIO_FOLDER_POSTFIX : path
+                isDir ? path + folderPostfix : path
         );
 
         return new ObjectMetadata(
@@ -46,7 +50,7 @@ public class HierarchicalMinioRepository {
     public List<ObjectMetadata> listResources(String path, boolean recursive) {
         if (!existsByPath(path)) throw new ResourceNotFoundMinioException("Folder is not found");
         return minioRepository.getListObjects(path, recursive).stream()
-                .filter(item -> !item.objectName().endsWith(MINIO_FOLDER_POSTFIX))
+                .filter(item -> !item.objectName().endsWith(folderPostfix))
                 .map(item -> new ObjectMetadata(item.objectName(), item.isDir(), item.size()))
                 .toList();
     }
@@ -75,7 +79,7 @@ public class HierarchicalMinioRepository {
     }
 
     public void createEmptyDirectory(String path) {
-        minioRepository.createEmptyObject(path + MINIO_FOLDER_POSTFIX);
+        minioRepository.createEmptyObject(path + folderPostfix);
     }
 
     private InputStreamResource downloadAsZip(String path) {
@@ -89,8 +93,8 @@ public class HierarchicalMinioRepository {
                         String objectName = item.objectName();
                         InputStream fileStream = minioRepository.downloadObject(objectName);
 
-                        String entryName = item.objectName().endsWith(MINIO_FOLDER_POSTFIX) ?
-                                item.objectName().substring(downloadPath.length(), objectName.length() - MINIO_FOLDER_POSTFIX.length()) :
+                        String entryName = item.objectName().endsWith(folderPostfix) ?
+                                item.objectName().substring(downloadPath.length(), objectName.length() - folderPostfix.length()) :
                                 item.objectName().substring(downloadPath.length());
 
                         zipOut.putNextEntry(new ZipEntry(entryName));
@@ -118,7 +122,7 @@ public class HierarchicalMinioRepository {
 
     private boolean existsByPath(String path) {
         if (path.endsWith("/")) {
-            path = path + MINIO_FOLDER_POSTFIX;
+            path = path + folderPostfix;
         }
         try {
             minioRepository.getObject(path);
