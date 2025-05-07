@@ -5,7 +5,7 @@ import org.example.cloudstorage.dto.ResourceResponseDto;
 import org.example.cloudstorage.entity.User;
 import org.example.cloudstorage.exception.ResourceAlreadyExistsMinioException;
 import org.example.cloudstorage.mapper.ResourceResponseDtoMapper;
-import org.example.cloudstorage.minio.MinioRepository;
+import org.example.cloudstorage.minio.HierarchicalMinioRepository;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,7 +17,7 @@ import static org.example.cloudstorage.constant.AppConstants.MINIO_USER_PREFIX;
 @Service
 @RequiredArgsConstructor
 public class ResourceServiceImpl implements ResourceService {
-    private final MinioRepository minioRepository;
+    private final HierarchicalMinioRepository minioRepository;
 
     @Override
     public ResourceResponseDto get(String path, User user) {

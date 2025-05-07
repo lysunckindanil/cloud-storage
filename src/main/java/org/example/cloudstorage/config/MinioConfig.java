@@ -5,6 +5,7 @@ import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import okhttp3.OkHttpClient;
 import org.example.cloudstorage.config.properties.MinioProperties;
+import org.example.cloudstorage.minio.HierarchicalMinioRepository;
 import org.example.cloudstorage.minio.MinioRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,9 +33,9 @@ public class MinioConfig {
     }
 
     @Bean
-    public MinioRepository minioRepository(MinioClient minioClient, MinioProperties minioProperties) throws Exception {
+    public HierarchicalMinioRepository minioRepository(MinioClient minioClient, MinioProperties minioProperties) throws Exception {
         createBucketIfNotExists(minioClient, minioProperties.getBucketName());
-        return new MinioRepository(minioClient, minioProperties.getBucketName());
+        return new HierarchicalMinioRepository(new MinioRepository(minioClient, minioProperties.getBucketName()));
     }
 
     private static void createBucketIfNotExists(MinioClient minioClient, String bucketName) throws Exception {
