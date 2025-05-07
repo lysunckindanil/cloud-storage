@@ -25,7 +25,6 @@ public class MinioRepository {
     private final MinioClient minioClient;
     private final String bucketName;
 
-
     public StatObjectResponse getObject(String path) {
         path = PathUtils.normalizePathAsMinioKey(path);
 

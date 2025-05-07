@@ -11,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-import static org.example.cloudstorage.constant.AppConstants.MINIO_USER_PREFIX;
+import static org.example.cloudstorage.util.MinioUserPathUtils.constructPath;
 
 @Service
 @RequiredArgsConstructor
@@ -20,20 +20,19 @@ public class ResourceServiceImpl implements ResourceService {
 
     @Override
     public ResourceResponseDto get(String path, User user) {
-        String completePath = MINIO_USER_PREFIX.formatted(user.getId()) + path;
-        return ResourceResponseDtoMapper.toDto(minioRepository.getResource(completePath));
+        return ResourceResponseDtoMapper.toDto(
+                minioRepository.getResource(constructPath(path, user))
+        );
     }
 
     @Override
     public void delete(String path, User user) {
-        String completePath = MINIO_USER_PREFIX.formatted(user.getId()) + path;
-        minioRepository.delete(completePath);
+        minioRepository.delete(constructPath(path, user));
     }
 
     @Override
     public InputStreamResource download(String path, User user) {
-        String completePath = MINIO_USER_PREFIX.formatted(user.getId()) + path;
-        return minioRepository.download(completePath);
+        return minioRepository.download(constructPath(path, user));
     }
 
     @Override
@@ -48,7 +47,7 @@ public class ResourceServiceImpl implements ResourceService {
 
     @Override
     public List<ResourceResponseDto> upload(String path, List<MultipartFile> files, User user) {
-        String completePath = MINIO_USER_PREFIX.formatted(user.getId()) + path;
+        String completePath = constructPath(path, user);
         minioRepository.upload(completePath, files);
 
         return minioRepository.listResources(completePath, true)

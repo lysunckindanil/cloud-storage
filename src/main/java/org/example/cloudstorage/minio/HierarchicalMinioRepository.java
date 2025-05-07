@@ -11,6 +11,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.Collection;
@@ -21,7 +22,7 @@ import java.util.zip.ZipOutputStream;
 
 @Slf4j
 public class HierarchicalMinioRepository {
-    public static final String MINIO_FOLDER_POSTFIX = "$";
+    private static final String MINIO_FOLDER_POSTFIX = "$";
 
     private final MinioRepository minioRepository;
 
@@ -74,7 +75,6 @@ public class HierarchicalMinioRepository {
     }
 
     public void createEmptyDirectory(String path) {
-        path = PathUtils.normalizePathAsMinioKey(path);
         minioRepository.createEmptyObject(path + MINIO_FOLDER_POSTFIX);
     }
 
@@ -87,7 +87,7 @@ public class HierarchicalMinioRepository {
                 for (Item item : minioRepository.getListObjects(downloadPath, true)) {
                     if (!item.isDir()) {
                         String objectName = item.objectName();
-                        var fileStream = minioRepository.downloadObject(objectName);
+                        InputStream fileStream = minioRepository.downloadObject(objectName);
 
                         String entryName = item.objectName().endsWith(MINIO_FOLDER_POSTFIX) ?
                                 item.objectName().substring(downloadPath.length(), objectName.length() - MINIO_FOLDER_POSTFIX.length()) :
