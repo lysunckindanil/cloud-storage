@@ -78,6 +78,13 @@ public class PathUtils {
         return path.strip().replace(" ", "+").replace("//", "/");
     }
 
+    public static String getOneParentFromEndAtN(String path, int n) {
+        Path p = Paths.get(path);
+        return p.subpath(p.getNameCount() - n - 1, p.getNameCount() - n).toString();
+    }
+
+
+
     public static Breadcrumb breadcrumb(String path, String name) {
         return new Breadcrumb(path, name);
     }

@@ -42,7 +42,9 @@ public class ResourceServiceImpl implements ResourceService {
 
     @Override
     public List<ResourceResponseDto> search(String query, User user) {
-        throw new UnsupportedOperationException();
+        return minioRepository.search(constructPath("/", user), query).stream()
+                .map(ResourceResponseDtoMapper::toDto)
+                .toList();
     }
 
     @Override

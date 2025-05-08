@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.StringJoiner;
@@ -32,7 +33,6 @@ public class HierarchicalMinioRepository {
     @Getter
     @Setter
     private String folderPostfix = DEFAULT_FOLDER_POSTFIX;
-
     private final MinioRepository minioRepository;
 
     public ObjectMetadata getResource(String path) {
@@ -64,6 +64,13 @@ public class HierarchicalMinioRepository {
         }
     }
 
+    public InputStreamResource download(String path) {
+        if (path.endsWith("/")) {
+            return downloadAsZip(path);
+        }
+        return new InputStreamResource(minioRepository.downloadObject(path));
+    }
+
     public void delete(String path) {
         try {
             for (Item item : minioRepository.getListObjects(path, true)) {
@@ -74,15 +81,34 @@ public class HierarchicalMinioRepository {
         }
     }
 
-    public InputStreamResource download(String path) {
-        if (!path.endsWith("/")) {
-            return downloadAsZip(path);
-        }
-        return new InputStreamResource(minioRepository.downloadObject(path));
-    }
-
     public void createEmptyDirectory(String path) {
         minioRepository.createEmptyObject(path + folderPostfix);
+    }
+
+    public List<ObjectMetadata> search(String path, String query) {
+        List<Item> objects = minioRepository.getListObjects(path, true);
+        List<ObjectMetadata> result = new ArrayList<>();
+        for (Item item : objects) {
+            String objectName = item.objectName();
+            if (objectName.equals(path + folderPostfix)) continue;
+            boolean isDir = false;
+            String objectSimpleName;
+
+            if (objectName.endsWith(folderPostfix)) {
+                objectSimpleName = PathUtils.getOneParentFromEndAtN(objectName, 1);
+                isDir = true;
+            } else {
+                objectSimpleName = PathUtils.getOneParentFromEndAtN(objectName, 0);
+            }
+
+            if (objectSimpleName.toLowerCase().contains(query.toLowerCase())) {
+                result.add(new ObjectMetadata(
+                        isDir ? objectName.substring(0, objectName.length() - folderPostfix.length()) : objectName,
+                        isDir,
+                        item.size()));
+            }
+        }
+        return result;
     }
 
     private InputStreamResource downloadAsZip(String path) {

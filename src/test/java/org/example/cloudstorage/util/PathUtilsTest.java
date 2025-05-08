@@ -69,4 +69,20 @@ class PathUtilsTest {
     void constructBreadcrumb_ThrowsError(String path, boolean isDir, int parentStart) {
         assertThrows(IllegalArgumentException.class, () -> PathUtils.constructBreadcrumb(path, isDir, parentStart));
     }
+
+
+    private static Stream<Arguments> getOneParentFromEndAtNTestData() {
+        return Stream.of(
+                Arguments.of("/n1/n2/n3", 0, "n3"),
+                Arguments.of("/n1/n2/n3", 1, "n2"),
+                Arguments.of("/n1/n2/n3", 2, "n1")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("getOneParentFromEndAtNTestData")
+    void getOneParentFromEndAtN(String input, int arg, String expected) {
+        String actual = PathUtils.getOneParentFromEndAtN(input, arg);
+        assertEquals(expected, actual);
+    }
 }
