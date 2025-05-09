@@ -66,10 +66,6 @@ public class PathUtils {
             return false;
         }
 
-        if (path.contains("..")) {
-            return false;
-        }
-
         return true;
     }
 
@@ -80,10 +76,11 @@ public class PathUtils {
 
     public static String getOneParentFromEndAtN(String path, int n) {
         Path p = Paths.get(path);
+        if (n >= p.getNameCount())
+            throw new IllegalArgumentException("N must be less than parent count: " + p.getNameCount());
+
         return p.subpath(p.getNameCount() - n - 1, p.getNameCount() - n).toString();
     }
-
-
 
     public static Breadcrumb breadcrumb(String path, String name) {
         return new Breadcrumb(path, name);

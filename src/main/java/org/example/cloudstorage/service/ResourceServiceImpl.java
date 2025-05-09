@@ -37,7 +37,9 @@ public class ResourceServiceImpl implements ResourceService {
 
     @Override
     public ResourceResponseDto move(String from, String to, User user) {
-        throw new UnsupportedOperationException();
+        String completeFrom = constructPath(from, user);
+        String completeTo = constructPath(to, user);
+        return ResourceResponseDtoMapper.toDto(minioRepository.move(completeFrom, completeTo));
     }
 
     @Override

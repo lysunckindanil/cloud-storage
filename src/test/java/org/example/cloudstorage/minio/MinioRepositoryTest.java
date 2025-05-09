@@ -5,6 +5,7 @@ import io.minio.messages.Item;
 import org.example.cloudstorage.config.MinioConfig;
 import org.example.cloudstorage.config.MinioTestContainer;
 import org.example.cloudstorage.config.properties.MinioProperties;
+import org.example.cloudstorage.exception.minio.InvalidPathMinioException;
 import org.example.cloudstorage.exception.minio.ResourceAlreadyExistsMinioException;
 import org.example.cloudstorage.exception.minio.ResourceNotFoundMinioException;
 import org.junit.jupiter.api.BeforeEach;
@@ -213,9 +214,41 @@ class MinioRepositoryTest {
             "test/test1.txt",
             "test/"
     })
+    @DisplayName("Creates empty file with given object name")
     void createEmptyObject(String objectName) throws Exception {
         createObject(objectName);
         assertEquals(objectName, minioRepository.getObject(objectName).object());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "test.txt,test2.txt",
+            "test.txt,dir1/test2.txt",
+            "dir/test1.txt,dir1/test2.txt",
+            "dir/test1.txt,dir/test2.txt",
+            "dir/test1.txt,dir1/test1.txt"
+    })
+    @DisplayName("Copy file with different object name")
+    void copy(String from, String to) throws Exception {
+        byte[] content = from.getBytes();
+
+        minioClient.putObject(
+                PutObjectArgs.builder()
+                        .bucket(BUCKET_NAME)
+                        .object(from)
+                        .stream(new ByteArrayInputStream(content), content.length, -1)
+                        .build());
+        minioRepository.copy(from, to);
+
+        assertEquals(to, minioRepository.getObject(to).object());
+        assertEquals(content.length, minioRepository.getObject(to).size());
+    }
+
+    @Test
+    @DisplayName("Copy file with identical from and to dirs throws InvalidPathMinioException")
+    void copy_theSamePath_throws() throws Exception {
+        createObject("test.txt");
+        assertThrows(InvalidPathMinioException.class, () -> minioRepository.copy("test.txt", "test.txt"));
     }
 
     void createObject(String path) throws Exception {

@@ -15,7 +15,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 public class GlobalExceptionAdvice {
 
     @ExceptionHandler(InvalidPathMinioException.class)
-    public ProblemDetail handleInvalidFilenameMinioException(InvalidPathMinioException e) {
+    public ProblemDetail handleInvalidPathMinioException(InvalidPathMinioException e) {
         log.debug("MinioException", e);
         return wrapToProblemDetail("Provided invalid path", HttpStatus.BAD_REQUEST);
     }

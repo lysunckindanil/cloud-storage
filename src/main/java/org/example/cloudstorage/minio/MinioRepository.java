@@ -35,7 +35,7 @@ public class MinioRepository {
                             .object(path)
                             .build());
         } catch (ErrorResponseException e) {
-            throw new ResourceNotFoundMinioException(e);
+            throw new ResourceNotFoundMinioException("Resource not found", e);
         } catch (Exception e) {
             throw new MinioException(e);
         }
@@ -73,7 +73,7 @@ public class MinioRepository {
                     .object(path)
                     .build());
         } catch (ErrorResponseException e) {
-            throw new ResourceNotFoundMinioException(e);
+            throw new ResourceNotFoundMinioException("Resource not found", e);
         } catch (Exception e) {
             throw new MinioException(e);
         }
@@ -82,7 +82,7 @@ public class MinioRepository {
     public void uploadObject(String path, MultipartFile file) {
         String uploadPath = PathUtils.normalizePathAsMinioKey(path + file.getOriginalFilename());
         if (!PathUtils.isPathValid(uploadPath))
-            throw new InvalidPathMinioException("Invalid path: " + uploadPath);
+            throw new InvalidPathMinioException("The upload path is invalid");
 
         Map<String, String> headers = new HashMap<>();
         headers.put("If-None-Match", "*");
@@ -97,7 +97,7 @@ public class MinioRepository {
                             .build());
         } catch (ErrorResponseException e) {
             if (e.errorResponse().code().equals("PreconditionFailed")) {
-                throw new ResourceAlreadyExistsMinioException("File already exists: " + file.getOriginalFilename());
+                throw new ResourceAlreadyExistsMinioException("File already exists: " + file.getOriginalFilename(), e);
             }
             throw new MinioException(e);
         } catch (Exception e) {
@@ -115,7 +115,7 @@ public class MinioRepository {
                             .object(objectName)
                             .build());
         } catch (ResourceNotFoundMinioException e) {
-            throw new ResourceNotFoundMinioException(e);
+            throw new ResourceNotFoundMinioException("Resource not found", e);
         } catch (Exception e) {
             throw new MinioException(e);
         }
@@ -131,7 +131,26 @@ public class MinioRepository {
                             .stream(new ByteArrayInputStream(new byte[]{}), 0, -1)
                             .build());
         } catch (ErrorResponseException e) {
-            throw new ResourceNotFoundMinioException(e);
+            throw new ResourceNotFoundMinioException("Resource not found", e);
+        } catch (Exception e) {
+            throw new MinioException(e);
+        }
+    }
+
+    public void copy(String from, String to) {
+        from = PathUtils.normalizePathAsMinioKey(from);
+        to = PathUtils.normalizePathAsMinioKey(to);
+        try {
+            minioClient.copyObject(CopyObjectArgs.builder()
+                    .bucket(bucketName)
+                    .object(to)
+                    .source(CopySource.builder()
+                            .bucket(bucketName)
+                            .object(from)
+                            .build())
+                    .build());
+        } catch (ErrorResponseException e) {
+            throw new InvalidPathMinioException("You cannot copy the object to the place where it currently locates");
         } catch (Exception e) {
             throw new MinioException(e);
         }

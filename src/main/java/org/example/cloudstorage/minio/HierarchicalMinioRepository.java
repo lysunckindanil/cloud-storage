@@ -6,9 +6,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.example.cloudstorage.exception.minio.MinioException;
-import org.example.cloudstorage.exception.minio.PartialDeletionMinioException;
-import org.example.cloudstorage.exception.minio.ResourceNotFoundMinioException;
+import org.example.cloudstorage.exception.minio.*;
 import org.example.cloudstorage.util.PathUtils;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,7 +38,6 @@ public class HierarchicalMinioRepository {
         StatObjectResponse statObject = minioRepository.getObject(
                 isDir ? path + folderPostfix : path
         );
-
         return new ObjectMetadata(
                 statObject.object(),
                 isDir,
@@ -50,7 +47,8 @@ public class HierarchicalMinioRepository {
 
     public List<ObjectMetadata> listResources(String path, boolean recursive) {
         if (!existsByPath(path)) throw new ResourceNotFoundMinioException("Folder is not found");
-        return minioRepository.getListObjects(path, recursive).stream()
+        return minioRepository.getListObjects(path, recursive)
+                .stream()
                 .filter(item -> !item.objectName().endsWith(folderPostfix))
                 .map(item -> new ObjectMetadata(item.objectName(), item.isDir(), item.size()))
                 .toList();
@@ -58,7 +56,7 @@ public class HierarchicalMinioRepository {
 
     public void upload(String path, Collection<MultipartFile> files) {
         for (MultipartFile file : files) {
-            if (file.getOriginalFilename() == null) throw new MinioException("Invalid file");
+            if (file.getOriginalFilename() == null) throw new InvalidPathMinioException("Invalid filename");
             createMissingDirectories(path, file.getOriginalFilename());
             minioRepository.uploadObject(path, file);
         }
@@ -109,6 +107,29 @@ public class HierarchicalMinioRepository {
             }
         }
         return result;
+    }
+
+    public ObjectMetadata move(String from, String to) {
+        if (!from.endsWith("/")) {
+            if (existsByPath(to))
+                throw new ResourceAlreadyExistsMinioException("Destination already exists");
+            createMissingDirectories("", to);
+            StatObjectResponse statObjectResponse = minioRepository.getObject(from);
+            minioRepository.copy(statObjectResponse.object(), to);
+            minioRepository.deleteObject(statObjectResponse.object());
+            return new ObjectMetadata(to, false, statObjectResponse.size());
+
+        } else {
+            List<Item> objects = minioRepository.getListObjects(from, true);
+            for (Item item : objects) {
+                if (existsByPath(to + item.objectName().substring(from.length()))) {
+                    throw new ResourceAlreadyExistsMinioException("Destination already exists");
+                }
+                minioRepository.copy(item.objectName(), to + item.objectName().substring(from.length()));
+                minioRepository.deleteObject(item.objectName());
+            }
+            return new ObjectMetadata(to, true, 0L);
+        }
     }
 
     private InputStreamResource downloadAsZip(String path) {
