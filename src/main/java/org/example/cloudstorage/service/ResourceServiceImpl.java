@@ -5,6 +5,7 @@ import org.example.cloudstorage.dto.ResourceResponseDto;
 import org.example.cloudstorage.entity.User;
 import org.example.cloudstorage.mapper.ResourceResponseDtoMapper;
 import org.example.cloudstorage.minio.HierarchicalMinioRepository;
+import org.example.cloudstorage.util.PathUtils;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,7 +40,10 @@ public class ResourceServiceImpl implements ResourceService {
     public ResourceResponseDto move(String from, String to, User user) {
         String completeFrom = constructPath(from, user);
         String completeTo = constructPath(to, user);
-        return ResourceResponseDtoMapper.toDto(minioRepository.move(completeFrom, completeTo));
+        return ResourceResponseDtoMapper.toDto(minioRepository.move(
+                PathUtils.normalizePathMinioCompatible(completeFrom),
+                PathUtils.normalizePathMinioCompatible(completeTo)
+        ));
     }
 
     @Override
@@ -52,8 +56,7 @@ public class ResourceServiceImpl implements ResourceService {
     @Override
     public List<ResourceResponseDto> upload(String path, List<MultipartFile> files, User user) {
         String completePath = constructPath(path, user);
-        minioRepository.upload(completePath, files);
-
+        minioRepository.uploadResources(completePath, files);
         return minioRepository.listResources(completePath, true)
                 .stream()
                 .map(ResourceResponseDtoMapper::toDto)

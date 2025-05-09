@@ -20,6 +20,12 @@ public class GlobalExceptionAdvice {
         return wrapToProblemDetail("Provided invalid path", HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(InvalidFileMinioException.class)
+    public ProblemDetail handleInvalidFileMinioException(InvalidFileMinioException e) {
+        log.debug("MinioException", e);
+        return wrapToProblemDetail(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(PartialDeletionMinioException.class)
     public ProblemDetail handlePartialDeletionMinioException(PartialDeletionMinioException e) {
         log.debug("MinioException", e);

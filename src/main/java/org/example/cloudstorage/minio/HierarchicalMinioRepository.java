@@ -16,7 +16,6 @@ import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.zip.ZipEntry;
@@ -54,11 +53,24 @@ public class HierarchicalMinioRepository {
                 .toList();
     }
 
-    public void upload(String path, Collection<MultipartFile> files) {
-        for (MultipartFile file : files) {
-            if (file.getOriginalFilename() == null) throw new InvalidPathMinioException("Invalid filename");
-            createMissingDirectories(path, file.getOriginalFilename());
-            minioRepository.uploadObject(path, file);
+    public void uploadResources(String path, List<MultipartFile> files) {
+        List<String> uploadedFiles = new ArrayList<>();
+        try {
+            for (MultipartFile file : files) {
+                if (file.getOriginalFilename() == null || file.getOriginalFilename().isEmpty())
+                    throw new InvalidFileMinioException("File name should not be empty");
+                String fileName = PathUtils.normalizePathMinioCompatible(file.getOriginalFilename());
+                uploadedFiles.add(minioRepository.uploadObject(path, file, fileName));
+            }
+        } catch (Exception e) {
+            for (String fileName : uploadedFiles) {
+                minioRepository.deleteObject(fileName);
+            }
+            throw e;
+        }
+
+        for (String fileName : uploadedFiles) {
+            createMissingDirectories(path, fileName);
         }
     }
 
@@ -112,13 +124,12 @@ public class HierarchicalMinioRepository {
     public ObjectMetadata move(String from, String to) {
         if (!from.endsWith("/")) {
             if (existsByPath(to))
-                throw new ResourceAlreadyExistsMinioException("Destination already exists");
+                throw new ResourceAlreadyExistsMinioException("Have already file with the same name");
             createMissingDirectories("", to);
             StatObjectResponse statObjectResponse = minioRepository.getObject(from);
             minioRepository.copy(statObjectResponse.object(), to);
             minioRepository.deleteObject(statObjectResponse.object());
             return new ObjectMetadata(to, false, statObjectResponse.size());
-
         } else {
             List<Item> objects = minioRepository.getListObjects(from, true);
             for (Item item : objects) {
@@ -133,29 +144,27 @@ public class HierarchicalMinioRepository {
     }
 
     private InputStreamResource downloadAsZip(String path) {
-        String downloadPath = PathUtils.normalizePathAsMinioKey(path);
+        String downloadPath = PathUtils.normalizePathMinioCompatible(path);
 
         PipedOutputStream out = new PipedOutputStream();
         new Thread(() -> {
             try (ZipOutputStream zipOut = new ZipOutputStream(out)) {
                 for (Item item : minioRepository.getListObjects(downloadPath, true)) {
-                    if (!item.isDir()) {
-                        String objectName = item.objectName();
-                        InputStream fileStream = minioRepository.downloadObject(objectName);
+                    String objectName = item.objectName();
+                    InputStream fileStream = minioRepository.downloadObject(objectName);
 
-                        String entryName = item.objectName().endsWith(folderPostfix) ?
-                                item.objectName().substring(downloadPath.length(), objectName.length() - folderPostfix.length()) :
-                                item.objectName().substring(downloadPath.length());
+                    String entryName = item.objectName().endsWith(folderPostfix) ?
+                            item.objectName().substring(downloadPath.length(), objectName.length() - folderPostfix.length()) :
+                            item.objectName().substring(downloadPath.length());
 
-                        zipOut.putNextEntry(new ZipEntry(entryName));
+                    zipOut.putNextEntry(new ZipEntry(entryName));
 
-                        byte[] buffer = new byte[1024];
-                        int len;
-                        while ((len = fileStream.read(buffer)) > 0) {
-                            zipOut.write(buffer, 0, len);
-                        }
-                        zipOut.closeEntry();
+                    byte[] buffer = new byte[1024];
+                    int len;
+                    while ((len = fileStream.read(buffer)) > 0) {
+                        zipOut.write(buffer, 0, len);
                     }
+                    zipOut.closeEntry();
                 }
                 zipOut.finish();
             } catch (Exception ex) {
@@ -165,8 +174,8 @@ public class HierarchicalMinioRepository {
 
         try {
             return new InputStreamResource(new PipedInputStream(out));
-        } catch (IOException ex) {
-            throw new MinioException("Unable to download folder as zip", ex);
+        } catch (IOException e) {
+            throw new MinioException("Unable to download folder as zip", e);
         }
     }
 
@@ -182,15 +191,15 @@ public class HierarchicalMinioRepository {
         return true;
     }
 
-    private void createMissingDirectories(String path, String additionDir) {
-        if (!additionDir.contains("/"))
+    private void createMissingDirectories(String path, String additionDirs) {
+        if (!additionDirs.contains("/"))
             return;
 
-        String[] dirs = additionDir.substring(0, additionDir.lastIndexOf("/")).split("/");
-        StringJoiner joiner = new StringJoiner("/");
-        for (String dir : dirs) {
-            joiner.add(dir);
-            createEmptyDirectory(path + joiner + "/");
+        String[] dirNames = additionDirs.substring(0, additionDirs.lastIndexOf("/")).split("/");
+        StringJoiner dirToCreate = new StringJoiner("/");
+        for (String dir : dirNames) {
+            dirToCreate.add(dir);
+            createEmptyDirectory(path + dirToCreate + "/");
         }
     }
 }

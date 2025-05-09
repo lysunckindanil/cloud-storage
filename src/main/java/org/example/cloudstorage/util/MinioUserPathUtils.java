@@ -6,6 +6,6 @@ public class MinioUserPathUtils {
     public static final String MINIO_USER_PREFIX = "user-%d-files/";
 
     public static String constructPath(String path, User user) {
-        return PathUtils.normalizePathAsMinioKey(MINIO_USER_PREFIX.formatted(user.getId()) + path);
+        return PathUtils.normalizePathMinioCompatible(MINIO_USER_PREFIX.formatted(user.getId()) + path);
     }
 }

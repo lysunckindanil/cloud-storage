@@ -26,7 +26,7 @@ public class MinioRepository {
     private final String bucketName;
 
     public StatObjectResponse getObject(String path) {
-        path = PathUtils.normalizePathAsMinioKey(path);
+        path = PathUtils.normalizePathMinioCompatible(path);
 
         try {
             return minioClient.statObject(
@@ -42,7 +42,7 @@ public class MinioRepository {
     }
 
     public List<Item> getListObjects(String path, boolean recursive) {
-        path = PathUtils.normalizePathAsMinioKey(path);
+        path = PathUtils.normalizePathMinioCompatible(path);
 
         var result = minioClient.listObjects(
                 ListObjectsArgs.builder()
@@ -64,7 +64,7 @@ public class MinioRepository {
     }
 
     public InputStream downloadObject(String path) {
-        path = PathUtils.normalizePathAsMinioKey(path);
+        path = PathUtils.normalizePathMinioCompatible(path);
 
         try {
             return minioClient.getObject(GetObjectArgs
@@ -79,10 +79,8 @@ public class MinioRepository {
         }
     }
 
-    public void uploadObject(String path, MultipartFile file) {
-        String uploadPath = PathUtils.normalizePathAsMinioKey(path + file.getOriginalFilename());
-        if (!PathUtils.isPathValid(uploadPath))
-            throw new InvalidPathMinioException("The upload path is invalid");
+    public String uploadObject(String path, MultipartFile file, String fileName) {
+        String uploadPath = path + fileName;
 
         Map<String, String> headers = new HashMap<>();
         headers.put("If-None-Match", "*");
@@ -97,16 +95,17 @@ public class MinioRepository {
                             .build());
         } catch (ErrorResponseException e) {
             if (e.errorResponse().code().equals("PreconditionFailed")) {
-                throw new ResourceAlreadyExistsMinioException("File already exists: " + file.getOriginalFilename(), e);
+                throw new ResourceAlreadyExistsMinioException("File already exists: " + fileName, e);
             }
             throw new MinioException(e);
         } catch (Exception e) {
             throw new MinioException(e);
         }
+
+        return uploadPath;
     }
 
     public void deleteObject(String path) {
-        path = PathUtils.normalizePathAsMinioKey(path);
         try {
             String objectName = getObject(path).object();
             minioClient.removeObject(
@@ -122,7 +121,6 @@ public class MinioRepository {
     }
 
     public void createEmptyObject(String path) {
-        path = PathUtils.normalizePathAsMinioKey(path);
         try {
             minioClient.putObject(
                     PutObjectArgs.builder()
@@ -138,8 +136,6 @@ public class MinioRepository {
     }
 
     public void copy(String from, String to) {
-        from = PathUtils.normalizePathAsMinioKey(from);
-        to = PathUtils.normalizePathAsMinioKey(to);
         try {
             minioClient.copyObject(CopyObjectArgs.builder()
                     .bucket(bucketName)
