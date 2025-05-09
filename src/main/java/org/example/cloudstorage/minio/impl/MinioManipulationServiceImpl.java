@@ -3,8 +3,8 @@ package org.example.cloudstorage.minio.impl;
 import io.minio.StatObjectResponse;
 import io.minio.messages.Item;
 import org.example.cloudstorage.exception.minio.*;
+import org.example.cloudstorage.minio.MinioManipulationService;
 import org.example.cloudstorage.minio.MinioRepository;
-import org.example.cloudstorage.minio.MinioResourceManipulationService;
 import org.example.cloudstorage.minio.ObjectMetadata;
 import org.example.cloudstorage.util.PathUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,18 +12,18 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MinioResourceManipulationServiceImpl implements MinioResourceManipulationService {
+public class MinioManipulationServiceImpl implements MinioManipulationService {
 
     private final MinioRepository minioRepository;
     private final String folderPostfix;
 
-    MinioResourceManipulationServiceImpl(MinioRepository minioRepository, String folderPostfix) {
+    public MinioManipulationServiceImpl(MinioRepository minioRepository, String folderPostfix) {
         this.minioRepository = minioRepository;
         this.folderPostfix = folderPostfix;
     }
 
     @Override
-    public void upload(String path, List<MultipartFile> files) {
+    public void uploadResource(String path, List<MultipartFile> files) {
         List<String> uploadedFiles = new ArrayList<>();
         try {
             for (MultipartFile file : files) {
@@ -40,13 +40,13 @@ public class MinioResourceManipulationServiceImpl implements MinioResourceManipu
 
         for (String fileName : uploadedFiles) {
             for (String nestedDirectory : PathUtils.getNestedDirectories(path, fileName)) {
-                minioRepository.createEmptyObject(nestedDirectory + folderPostfix);
+                createEmptyDirectory(nestedDirectory);
             }
         }
     }
 
     @Override
-    public void delete(String path) {
+    public void deleteResource(String path) {
         try {
             for (Item item : minioRepository.getListObjects(path, true)) {
                 minioRepository.deleteObject(item.objectName());
@@ -57,7 +57,7 @@ public class MinioResourceManipulationServiceImpl implements MinioResourceManipu
     }
 
     @Override
-    public ObjectMetadata move(String from, String to) {
+    public ObjectMetadata moveResource(String from, String to) {
         if (!from.endsWith("/")) {
             return moveFile(from, to);
         } else {
@@ -65,11 +65,16 @@ public class MinioResourceManipulationServiceImpl implements MinioResourceManipu
         }
     }
 
+    @Override
+    public void createEmptyDirectory(String path) {
+        minioRepository.createEmptyObject(path + folderPostfix);
+    }
+
     private ObjectMetadata moveFile(String from, String to) {
         if (existsByPath(to))
             throw new ResourceAlreadyExistsMinioException("Have already file with the same name");
         for (String nestedDirectory : PathUtils.getNestedDirectories("", to)) {
-            minioRepository.createEmptyObject(nestedDirectory + folderPostfix);
+            createEmptyDirectory(nestedDirectory + folderPostfix);
         }
         StatObjectResponse statObjectResponse = minioRepository.getObject(from);
         minioRepository.copy(statObjectResponse.object(), to);
@@ -105,7 +110,7 @@ public class MinioResourceManipulationServiceImpl implements MinioResourceManipu
 
         for (String fileTo : copiedFilesTo) {
             for (String nestedDirectory : PathUtils.getNestedDirectories("", fileTo)) {
-                minioRepository.createEmptyObject(nestedDirectory + folderPostfix);
+                createEmptyDirectory(nestedDirectory);
             }
         }
 

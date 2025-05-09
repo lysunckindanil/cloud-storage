@@ -3,8 +3,8 @@ package org.example.cloudstorage.minio.impl;
 import io.minio.messages.Item;
 import lombok.extern.slf4j.Slf4j;
 import org.example.cloudstorage.exception.minio.MinioException;
+import org.example.cloudstorage.minio.MinioDownloadService;
 import org.example.cloudstorage.minio.MinioRepository;
-import org.example.cloudstorage.minio.MinioResourceDownloadService;
 import org.example.cloudstorage.util.PathUtils;
 import org.springframework.core.io.InputStreamResource;
 
@@ -16,18 +16,18 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 @Slf4j
-public class MinioResourceDownloadServiceImpl implements MinioResourceDownloadService {
+public class MinioDownloadServiceImpl implements MinioDownloadService {
 
     private final MinioRepository minioRepository;
     private final String folderPostfix;
 
-    MinioResourceDownloadServiceImpl(MinioRepository minioRepository, String folderPostfix) {
+    public MinioDownloadServiceImpl(MinioRepository minioRepository, String folderPostfix) {
         this.minioRepository = minioRepository;
         this.folderPostfix = folderPostfix;
     }
 
     @Override
-    public InputStreamResource download(String path) {
+    public InputStreamResource downloadResource(String path) {
         if (path.endsWith("/")) {
             return downloadAsZip(path);
         }

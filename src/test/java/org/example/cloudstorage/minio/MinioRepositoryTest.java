@@ -40,8 +40,6 @@ class MinioRepositoryTest {
         minioProperties.setAccessKey(minioContainer.getAccessKey());
         minioProperties.setSecretKey(minioContainer.getSecretKey());
         minioProperties.setBucketName(BUCKET_NAME);
-        System.out.println(minioProperties.getAccessKey());
-        System.out.println(minioProperties.getSecretKey());
         this.minioClient = new MinioConfig().minioClient(minioProperties);
         this.minioRepository = new MinioRepository(this.minioClient, minioProperties.getBucketName());
     }

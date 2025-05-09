@@ -2,7 +2,7 @@ package org.example.cloudstorage.minio.impl;
 
 import io.minio.messages.Item;
 import org.example.cloudstorage.minio.MinioRepository;
-import org.example.cloudstorage.minio.MinioResourceSearchService;
+import org.example.cloudstorage.minio.MinioSearchService;
 import org.example.cloudstorage.minio.ObjectMetadata;
 import org.example.cloudstorage.util.PathUtils;
 
@@ -10,19 +10,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MinioResourceSearchServiceImpl implements MinioResourceSearchService {
+public class MinioSearchServiceImpl implements MinioSearchService {
 
     private final MinioRepository minioRepository;
     private final String folderPostfix;
 
-    MinioResourceSearchServiceImpl(MinioRepository minioRepository, String folderPostfix) {
+    public MinioSearchServiceImpl(MinioRepository minioRepository, String folderPostfix) {
         this.minioRepository = minioRepository;
         this.folderPostfix = folderPostfix;
     }
 
 
     @Override
-    public List<ObjectMetadata> search(String path, String query) {
+    public List<ObjectMetadata> searchResources(String path, String query) {
         List<Item> objects = minioRepository.getListObjects(path, true);
         List<ObjectMetadata> result = new ArrayList<>();
         for (Item item : objects) {
@@ -32,10 +32,10 @@ public class MinioResourceSearchServiceImpl implements MinioResourceSearchServic
             String objectSimpleName;
 
             if (objectName.endsWith(folderPostfix)) {
-                objectSimpleName = PathUtils.getOneParentFromEndAtN(objectName, 1);
+                objectSimpleName = PathUtils.getParentFromEndAtN(objectName, 1);
                 isDir = true;
             } else {
-                objectSimpleName = PathUtils.getOneParentFromEndAtN(objectName, 0);
+                objectSimpleName = PathUtils.getParentFromEndAtN(objectName, 0);
             }
 
             if (objectSimpleName.toLowerCase().contains(query.toLowerCase())) {

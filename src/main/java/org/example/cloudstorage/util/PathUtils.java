@@ -77,7 +77,7 @@ public class PathUtils {
         return path.strip().replace(" ", "+").replace("//", "/");
     }
 
-    public static String getOneParentFromEndAtN(String path, int n) {
+    public static String getParentFromEndAtN(String path, int n) {
         Path p = Paths.get(path);
         if (n >= p.getNameCount())
             throw new IllegalArgumentException("N must be less than parent count: " + p.getNameCount());

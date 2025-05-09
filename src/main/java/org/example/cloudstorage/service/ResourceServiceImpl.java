@@ -21,23 +21,23 @@ public class ResourceServiceImpl implements ResourceService {
     @Override
     public ResourceResponseDto get(String path, User user) {
         return ResourceResponseDtoMapper.toDto(
-                minioRepository.get(constructPath(path, user))
+                minioRepository.getResource(constructPath(path, user))
         );
     }
 
     @Override
     public void delete(String path, User user) {
-        minioRepository.delete(constructPath(path, user));
+        minioRepository.deleteResource(constructPath(path, user));
     }
 
     @Override
     public InputStreamResource download(String path, User user) {
-        return minioRepository.download(constructPath(path, user));
+        return minioRepository.downloadResource(constructPath(path, user));
     }
 
     @Override
     public ResourceResponseDto move(String from, String to, User user) {
-        return ResourceResponseDtoMapper.toDto(minioRepository.move(
+        return ResourceResponseDtoMapper.toDto(minioRepository.moveResource(
                 constructPath(from, user),
                 constructPath(to, user)
         ));
@@ -45,7 +45,7 @@ public class ResourceServiceImpl implements ResourceService {
 
     @Override
     public List<ResourceResponseDto> search(String query, User user) {
-        return minioRepository.search(constructPath("/", user), query).stream()
+        return minioRepository.searchResources(constructPath("/", user), query).stream()
                 .map(ResourceResponseDtoMapper::toDto)
                 .toList();
     }
@@ -53,8 +53,8 @@ public class ResourceServiceImpl implements ResourceService {
     @Override
     public List<ResourceResponseDto> upload(String path, List<MultipartFile> files, User user) {
         String completePath = constructPath(path, user);
-        minioRepository.upload(completePath, files);
-        return minioRepository.list(completePath, true)
+        minioRepository.uploadResource(completePath, files);
+        return minioRepository.listFiles(completePath, true)
                 .stream()
                 .map(ResourceResponseDtoMapper::toDto)
                 .toList();

@@ -11,57 +11,63 @@ import java.util.List;
 
 @Slf4j
 public class HierarchicalMinioRepository implements
-        MinioResourceMetadataService,
-        MinioResourceSearchService,
-        MinioResourceDownloadService,
-        MinioResourceManipulationService {
+        MinioMetadataService,
+        MinioSearchService,
+        MinioDownloadService,
+        MinioManipulationService {
 
     private static final String DEFAULT_FOLDER_POSTFIX = "$";
     @Getter
     private final String folderPostfix;
 
-    private final MinioResourceSearchService minioResourceSearchService;
-    private final MinioResourceDownloadService minioResourceDownloadService;
-    private final MinioResourceMetadataService minioResourceMetadataService;
-    private final MinioResourceManipulationService minioResourceManipulationService;
+    private final MinioSearchService minioSearchService;
+    private final MinioDownloadService minioDownloadService;
+    private final MinioMetadataService minioMetadataService;
+    private final MinioManipulationService minioManipulationService;
 
     public HierarchicalMinioRepository(MinioRepository minioRepository) {
         this(minioRepository, DEFAULT_FOLDER_POSTFIX);
     }
 
     public HierarchicalMinioRepository(MinioRepository minioRepository, String folderPostfix) {
+        if (folderPostfix == null) throw new IllegalArgumentException("folderPostfix cannot be null");
         this.folderPostfix = folderPostfix;
-        this.minioResourceMetadataService = new MinioResourceMetadataServiceImpl(minioRepository, folderPostfix);
-        this.minioResourceSearchService = new MinioResourceSearchServiceImpl(minioRepository, folderPostfix);
-        this.minioResourceDownloadService = new MinioResourceDownloadServiceImpl(minioRepository, folderPostfix);
-        this.minioResourceManipulationService = new MinioResourceManipulationServiceImpl(minioRepository, folderPostfix);
+        this.minioMetadataService = new MinioMetadataServiceImpl(minioRepository, folderPostfix);
+        this.minioSearchService = new MinioSearchServiceImpl(minioRepository, folderPostfix);
+        this.minioDownloadService = new MinioDownloadServiceImpl(minioRepository, folderPostfix);
+        this.minioManipulationService = new MinioManipulationServiceImpl(minioRepository, folderPostfix);
     }
 
-    public ObjectMetadata get(String path) {
-        return minioResourceMetadataService.get(path);
+    public ObjectMetadata getResource(String path) {
+        return minioMetadataService.getResource(path);
     }
 
-    public List<ObjectMetadata> list(String path, boolean recursive) {
-        return minioResourceMetadataService.list(path, recursive);
+    public List<ObjectMetadata> listFiles(String path, boolean recursive) {
+        return minioMetadataService.listFiles(path, recursive);
     }
 
-    public InputStreamResource download(String path) {
-        return minioResourceDownloadService.download(path);
+    public InputStreamResource downloadResource(String path) {
+        return minioDownloadService.downloadResource(path);
     }
 
-    public List<ObjectMetadata> search(String path, String query) {
-        return minioResourceSearchService.search(path, query);
+    public List<ObjectMetadata> searchResources(String path, String query) {
+        return minioSearchService.searchResources(path, query);
     }
 
-    public void upload(String path, List<MultipartFile> files) {
-        minioResourceManipulationService.upload(path, files);
+    public void uploadResource(String path, List<MultipartFile> files) {
+        minioManipulationService.uploadResource(path, files);
     }
 
-    public void delete(String path) {
-        minioResourceManipulationService.delete(path);
+    public void deleteResource(String path) {
+        minioManipulationService.deleteResource(path);
     }
 
-    public ObjectMetadata move(String from, String to) {
-        return minioResourceManipulationService.move(from, to);
+    public ObjectMetadata moveResource(String from, String to) {
+        return minioManipulationService.moveResource(from, to);
+    }
+
+    @Override
+    public void createEmptyDirectory(String path) {
+        minioManipulationService.createEmptyDirectory(path);
     }
 }

@@ -2,23 +2,23 @@ package org.example.cloudstorage.minio.impl;
 
 import io.minio.StatObjectResponse;
 import org.example.cloudstorage.exception.minio.ResourceNotFoundMinioException;
+import org.example.cloudstorage.minio.MinioMetadataService;
 import org.example.cloudstorage.minio.MinioRepository;
-import org.example.cloudstorage.minio.MinioResourceMetadataService;
 import org.example.cloudstorage.minio.ObjectMetadata;
 
 import java.util.List;
 
-public class MinioResourceMetadataServiceImpl implements MinioResourceMetadataService {
+public class MinioMetadataServiceImpl implements MinioMetadataService {
     private final MinioRepository minioRepository;
     private final String folderPostfix;
 
-    MinioResourceMetadataServiceImpl(MinioRepository minioRepository, String folderPostfix) {
+    public MinioMetadataServiceImpl(MinioRepository minioRepository, String folderPostfix) {
         this.minioRepository = minioRepository;
         this.folderPostfix = folderPostfix;
     }
 
     @Override
-    public ObjectMetadata get(String path) {
+    public ObjectMetadata getResource(String path) {
         boolean isDir = path.endsWith("/");
         StatObjectResponse statObject = minioRepository.getObject(
                 isDir ? path + folderPostfix : path
@@ -31,7 +31,7 @@ public class MinioResourceMetadataServiceImpl implements MinioResourceMetadataSe
     }
 
     @Override
-    public List<ObjectMetadata> list(String path, boolean recursive) {
+    public List<ObjectMetadata> listFiles(String path, boolean recursive) {
         if (!existsByPath(path)) throw new ResourceNotFoundMinioException("Folder is not found");
         return minioRepository.getListObjects(path, recursive)
                 .stream()

@@ -71,7 +71,7 @@ class PathUtilsTest {
     }
 
 
-    private static Stream<Arguments> getOneParentFromEndAtNTestData() {
+    private static Stream<Arguments> getParentFromEndAtNTestData() {
         return Stream.of(
                 Arguments.of("/n1/n2/n3", 0, "n3"),
                 Arguments.of("/n1/n2/n3", 1, "n2"),
@@ -80,13 +80,13 @@ class PathUtilsTest {
     }
 
     @ParameterizedTest
-    @MethodSource("getOneParentFromEndAtNTestData")
-    void getOneParentFromEndAtN(String input, int arg, String expected) {
-        String actual = PathUtils.getOneParentFromEndAtN(input, arg);
+    @MethodSource("getParentFromEndAtNTestData")
+    void getParentFromEndAtN(String input, int arg, String expected) {
+        String actual = PathUtils.getParentFromEndAtN(input, arg);
         assertEquals(expected, actual);
     }
 
-    private static Stream<Arguments> getOneParentFromEndAtN_OutOfBonds_ThrowsException() {
+    private static Stream<Arguments> getParentFromEndAtN_OutOfBonds_ThrowsException() {
         return Stream.of(
                 Arguments.of("/n1/n2/n3", 3),
                 Arguments.of("/n1/n2/n3", 4),
@@ -96,9 +96,9 @@ class PathUtilsTest {
         );
     }
 
-    @MethodSource("getOneParentFromEndAtN_OutOfBonds_ThrowsException")
+    @MethodSource("getParentFromEndAtN_OutOfBonds_ThrowsException")
     @ParameterizedTest
-    void getOneParentFromEndAtN_OutOfBonds_ThrowsException(String input, int arg) {
-        assertThrows(IllegalArgumentException.class, () -> PathUtils.getOneParentFromEndAtN(input, arg));
+    void getParentFromEndAtN_OutOfBonds_ThrowsException(String input, int arg) {
+        assertThrows(IllegalArgumentException.class, () -> PathUtils.getParentFromEndAtN(input, arg));
     }
 }
