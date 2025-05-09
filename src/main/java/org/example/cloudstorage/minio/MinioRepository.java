@@ -80,7 +80,7 @@ public class MinioRepository {
     }
 
     public String uploadObject(String path, MultipartFile file, String fileName) {
-        String uploadPath = path + fileName;
+        String uploadPath = PathUtils.normalizePathMinioCompatible(path + fileName);
 
         Map<String, String> headers = new HashMap<>();
         headers.put("If-None-Match", "*");
@@ -106,6 +106,8 @@ public class MinioRepository {
     }
 
     public void deleteObject(String path) {
+        path = PathUtils.normalizePathMinioCompatible(path);
+
         try {
             String objectName = getObject(path).object();
             minioClient.removeObject(
@@ -121,6 +123,8 @@ public class MinioRepository {
     }
 
     public void createEmptyObject(String path) {
+        path = PathUtils.normalizePathMinioCompatible(path);
+
         try {
             minioClient.putObject(
                     PutObjectArgs.builder()
@@ -136,6 +140,9 @@ public class MinioRepository {
     }
 
     public void copy(String from, String to) {
+        from = PathUtils.normalizePathMinioCompatible(from);
+        to = PathUtils.normalizePathMinioCompatible(to);
+
         try {
             minioClient.copyObject(CopyObjectArgs.builder()
                     .bucket(bucketName)

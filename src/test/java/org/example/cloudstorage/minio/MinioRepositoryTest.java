@@ -150,7 +150,7 @@ class MinioRepositoryTest {
                 content
         );
 
-        minioRepository.uploadObject(path, file);
+        minioRepository.uploadObject(path, file, fileName);
 
         InputStream downloaded = minioClient.getObject(
                 GetObjectArgs.builder()
@@ -184,7 +184,7 @@ class MinioRepositoryTest {
         );
 
         assertThrows(ResourceAlreadyExistsMinioException.class,
-                () -> minioRepository.uploadObject(path, file));
+                () -> minioRepository.uploadObject(path, file, fileName));
     }
 
     @ParameterizedTest

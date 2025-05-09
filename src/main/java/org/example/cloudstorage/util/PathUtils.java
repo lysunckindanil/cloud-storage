@@ -6,6 +6,9 @@ import lombok.Getter;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringJoiner;
 import java.util.regex.Pattern;
 
 public class PathUtils {
@@ -80,6 +83,20 @@ public class PathUtils {
             throw new IllegalArgumentException("N must be less than parent count: " + p.getNameCount());
 
         return p.subpath(p.getNameCount() - n - 1, p.getNameCount() - n).toString();
+    }
+
+    public static List<String> getNestedDirectories(String basePath, String path) {
+        List<String> result = new ArrayList<>();
+        if (!path.contains("/"))
+            return List.of();
+
+        String[] dirNames = path.substring(0, path.lastIndexOf("/")).split("/");
+        StringJoiner dirToCreate = new StringJoiner("/");
+        for (String dir : dirNames) {
+            dirToCreate.add(dir);
+            result.add(basePath + dirToCreate + "/");
+        }
+        return result;
     }
 
     public static Breadcrumb breadcrumb(String path, String name) {
