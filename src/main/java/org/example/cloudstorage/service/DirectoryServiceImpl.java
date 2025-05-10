@@ -31,4 +31,9 @@ public class DirectoryServiceImpl implements DirectoryService {
         minioRepository.createEmptyDirectory(completePath);
         return ResourceResponseDtoMapper.toDto(completePath);
     }
+
+    @Override
+    public void createDirectoryForNewUser(User user) {
+        minioRepository.createEmptyDirectory(MinioUserPathUtils.constructPath("", user));
+    }
 }

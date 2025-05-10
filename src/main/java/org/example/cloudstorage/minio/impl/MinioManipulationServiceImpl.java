@@ -1,6 +1,5 @@
 package org.example.cloudstorage.minio.impl;
 
-import io.minio.StatObjectResponse;
 import io.minio.messages.Item;
 import org.example.cloudstorage.exception.minio.InvalidFileMinioException;
 import org.example.cloudstorage.exception.minio.InvalidPathMinioException;
@@ -33,21 +32,10 @@ public class MinioManipulationServiceImpl implements MinioManipulationService {
                     throw new InvalidFileMinioException("File name should not be empty");
                 uploadedFiles.add(minioRepository.uploadObject(path, file, file.getOriginalFilename()));
             }
+            createMissingDirectories(uploadedFiles, path);
         } catch (Exception e) {
-            for (String fileName : uploadedFiles) {
-                try {
-                    minioRepository.deleteObjects(List.of(fileName));
-                } catch (Exception deleteEx) {
-                    e.addSuppressed(deleteEx);
-                }
-            }
+            rollbackCreatedObjects(uploadedFiles, e);
             throw e;
-        }
-
-        for (String fileName : uploadedFiles) {
-            for (String nestedDirectory : PathUtils.getNestedDirectories(path, fileName)) {
-                createEmptyDirectory(nestedDirectory, true);
-            }
         }
     }
 
@@ -74,16 +62,11 @@ public class MinioManipulationServiceImpl implements MinioManipulationService {
 
         if (fromIsDirectory && toIsDirectory) {
             return moveDirectory(from, to);
-        }
-
-        if (!fromIsDirectory && !toIsDirectory) {
+        } else if (!fromIsDirectory && !toIsDirectory) {
             return moveFile(from, to);
-        }
-
-        if (fromIsDirectory) {
+        } else if (fromIsDirectory) {
             throw new InvalidPathMinioException("You cannot move a directory to a file");
         }
-
         throw new InvalidPathMinioException("You cannot turn a file into a directory");
     }
 
@@ -107,13 +90,10 @@ public class MinioManipulationServiceImpl implements MinioManipulationService {
         if (!existsByPath(from))
             throw new ResourceNotFoundMinioException("Source file does not exist");
 
-        for (String nestedDirectory : PathUtils.getNestedDirectories("", to)) {
-            createEmptyDirectory(nestedDirectory, true);
-        }
-        StatObjectResponse statObjectResponse = minioRepository.getObject(from);
-        minioRepository.copy(statObjectResponse.object(), to);
-        minioRepository.deleteObjects(List.of(statObjectResponse.object()));
-        return new ObjectMetadata(to, false, statObjectResponse.size());
+        minioRepository.copy(from, to);
+        minioRepository.deleteObjects(List.of(from));
+        createMissingDirectories(List.of(to), "");
+        return new ObjectMetadata(to, false, minioRepository.getObject(to).size());
     }
 
     private ObjectMetadata moveDirectory(String from, String to) {
@@ -122,46 +102,44 @@ public class MinioManipulationServiceImpl implements MinioManipulationService {
         if (existsByPath(to))
             throw new ResourceAlreadyExistsMinioException("Destination directory already exists");
 
-        List<String> copiedFilesFrom = new ArrayList<>();
-        List<String> copiedFilesTo = new ArrayList<>();
-
+        List<String> copiedFiles = new ArrayList<>();
         List<Item> objects = minioRepository.getListObjects(from, true);
+
         try {
             for (Item item : objects) {
                 String toPath = to + item.objectName().substring(from.length());
                 minioRepository.copy(item.objectName(), toPath);
-                copiedFilesFrom.add(item.objectName());
-                copiedFilesTo.add(toPath);
+                copiedFiles.add(toPath);
             }
+            createMissingDirectories(copiedFiles, "");
         } catch (Exception e) {
-            minioRepository.deleteObjects(copiedFilesTo);
+            rollbackCreatedObjects(copiedFiles, e);
             throw e;
         }
-
-        minioRepository.deleteObjects(copiedFilesFrom);
-
-        for (String fileTo : copiedFilesTo) {
-            for (String nestedDirectory : PathUtils.getNestedDirectories("", fileTo)) {
-                createEmptyDirectory(nestedDirectory, true);
-            }
-        }
-
-        if (from.isEmpty()) {
-            createEmptyDirectory(from, true);
-        }
-
+        minioRepository.deleteObjects(objects.stream().map(Item::objectName).toList());
         return new ObjectMetadata(to, true, 0L);
     }
 
     private boolean existsByPath(String path) {
         if (path.endsWith("/") || path.isEmpty()) {
-            path = path + folderPostfix;
+            return !minioRepository.getListObjects(path + folderPostfix, false).isEmpty();
         }
+        return !minioRepository.getListObjects(path, false).isEmpty();
+    }
+
+    private void rollbackCreatedObjects(List<String> createdObjects, Exception e) {
         try {
-            minioRepository.getObject(path);
-        } catch (ResourceNotFoundMinioException e) {
-            return false;
+            minioRepository.deleteObjects(createdObjects);
+        } catch (Exception deleteEx) {
+            e.addSuppressed(deleteEx);
         }
-        return true;
+    }
+
+    private void createMissingDirectories(List<String> paths, String basePath) {
+        for (String path : paths) {
+            for (String nestedDirectory : PathUtils.getNestedDirectories(basePath, path)) {
+                createEmptyDirectory(nestedDirectory, true);
+            }
+        }
     }
 }

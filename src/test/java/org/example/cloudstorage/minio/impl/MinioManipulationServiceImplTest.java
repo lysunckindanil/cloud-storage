@@ -214,7 +214,6 @@ class MinioManipulationServiceImplTest {
                         )),
                 Arguments.of("", "folder3/",
                         List.of(
-                                "$",
                                 "folder3/$",
                                 "folder3/folder1/$",
                                 "folder3/folder1/file11.txt",

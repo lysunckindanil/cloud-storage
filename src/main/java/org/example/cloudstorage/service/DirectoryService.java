@@ -9,4 +9,6 @@ public interface DirectoryService {
     List<ResourceResponseDto> get(String path, User user);
 
     ResourceResponseDto create(String path, User user);
+
+    void createDirectoryForNewUser(User user);
 }

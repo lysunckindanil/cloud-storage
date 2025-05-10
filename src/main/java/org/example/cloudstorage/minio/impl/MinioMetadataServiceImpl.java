@@ -41,13 +41,8 @@ public class MinioMetadataServiceImpl implements MinioMetadataService {
 
     private boolean existsByPath(String path) {
         if (path.endsWith("/") || path.isEmpty()) {
-            path = path + folderPostfix;
+            return !minioRepository.getListObjects(path + folderPostfix, false).isEmpty();
         }
-        try {
-            minioRepository.getObject(path);
-        } catch (ResourceNotFoundMinioException e) {
-            return false;
-        }
-        return true;
+        return !minioRepository.getListObjects(path, false).isEmpty();
     }
 }

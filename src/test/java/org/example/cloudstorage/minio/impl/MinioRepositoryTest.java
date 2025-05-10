@@ -25,6 +25,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("resource")
 @ActiveProfiles("test")
 @Testcontainers
 class MinioRepositoryTest {
