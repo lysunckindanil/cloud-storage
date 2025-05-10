@@ -40,6 +40,11 @@ public class PathUtils {
     public static Breadcrumb constructBreadcrumb(String path, boolean isDir, int parentStart) {
         try {
             Path file = Paths.get(path);
+
+            if (file.getNameCount() == parentStart) {
+                return new Breadcrumb("/", "/");
+            }
+
             file = file.subpath(parentStart, file.getNameCount());
 
             String filePath = file.getParent() == null ? "/" : (file.getParent().toFile() + "/");

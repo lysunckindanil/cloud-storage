@@ -18,12 +18,12 @@ public class MinioMetadataServiceImpl implements MinioMetadataService {
 
     @Override
     public ObjectMetadata getResource(String path) {
-        boolean isDir = path.endsWith("/");
+        boolean isDir = isDir(path);
         StatObjectResponse statObject = minioRepository.getObject(
                 isDir ? path + folderPostfix : path
         );
         return new ObjectMetadata(
-                statObject.object(),
+                isDir ? path : statObject.object(),
                 isDir,
                 statObject.size()
         );
@@ -40,9 +40,13 @@ public class MinioMetadataServiceImpl implements MinioMetadataService {
     }
 
     private boolean existsByPath(String path) {
-        if (path.endsWith("/") || path.isEmpty()) {
+        if (isDir(path)) {
             return !minioRepository.getListObjects(path + folderPostfix, false).isEmpty();
         }
         return !minioRepository.getListObjects(path, false).isEmpty();
+    }
+
+    private boolean isDir(String path) {
+        return path.endsWith("/") || path.isEmpty();
     }
 }

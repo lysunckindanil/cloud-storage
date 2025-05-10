@@ -2,9 +2,7 @@ package org.example.cloudstorage.minio.impl;
 
 import io.minio.*;
 import io.minio.messages.Item;
-import org.example.cloudstorage.config.MinioConfig;
 import org.example.cloudstorage.config.MinioTestContainer;
-import org.example.cloudstorage.config.properties.MinioProperties;
 import org.example.cloudstorage.exception.minio.InvalidPathMinioException;
 import org.example.cloudstorage.exception.minio.ResourceAlreadyExistsMinioException;
 import org.example.cloudstorage.exception.minio.ResourceNotFoundMinioException;
@@ -38,13 +36,8 @@ class MinioRepositoryTest {
     static MinioTestContainer minioContainer = new MinioTestContainer();
 
     public MinioRepositoryTest() throws Exception {
-        MinioProperties minioProperties = new MinioProperties();
-        minioProperties.setUrl(minioContainer.getUrl());
-        minioProperties.setAccessKey(minioContainer.getAccessKey());
-        minioProperties.setSecretKey(minioContainer.getSecretKey());
-        minioProperties.setBucketName(BUCKET_NAME);
-        this.minioClient = new MinioConfig().minioClient(minioProperties);
-        this.minioRepository = new MinioRepository(this.minioClient, minioProperties.getBucketName());
+        this.minioClient = minioContainer.getMinioClient(BUCKET_NAME);
+        this.minioRepository = new MinioRepository(minioClient, BUCKET_NAME);
     }
 
     @BeforeEach

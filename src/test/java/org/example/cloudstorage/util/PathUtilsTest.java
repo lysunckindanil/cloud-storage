@@ -51,16 +51,16 @@ class PathUtilsTest {
 
     private static Stream<Arguments> constructBreadcrumbTestInvalidData() {
         return Stream.of(
-                Arguments.of("/", true, 0),
-                Arguments.of("/", false, 0),
-                Arguments.of("/folder/", true, 1),
-                Arguments.of("/folder", true, 1),
-                Arguments.of("folder/", true, 1),
-                Arguments.of("/folder/folder", true, 2),
-                Arguments.of("folder/folder", true, 2),
-                Arguments.of("folder/folder/", true, 2),
-                Arguments.of("folder/folder/", true, 2),
-                Arguments.of("folder/folder/", true, 2)
+                Arguments.of("/", true, 1),
+                Arguments.of("/", false, 1),
+                Arguments.of("/folder/", true, 2),
+                Arguments.of("/folder", true, 2),
+                Arguments.of("folder/", true, 2),
+                Arguments.of("/folder/folder", true, 3),
+                Arguments.of("folder/folder", true, 3),
+                Arguments.of("folder/folder/", true, 3),
+                Arguments.of("folder/folder/", true, 3),
+                Arguments.of("folder/folder/", true, 3)
         );
     }
 

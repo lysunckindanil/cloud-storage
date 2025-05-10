@@ -18,7 +18,6 @@ public class DirectoryServiceImpl implements DirectoryService {
     @Override
     public List<ResourceResponseDto> get(String path, User user) {
         String completePath = MinioUserPathUtils.constructPath(path, user);
-
         return minioRepository.listFiles(completePath, false)
                 .stream()
                 .map(ResourceResponseDtoMapper::toDto)

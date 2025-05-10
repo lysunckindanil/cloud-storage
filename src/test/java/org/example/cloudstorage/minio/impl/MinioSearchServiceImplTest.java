@@ -1,9 +1,7 @@
 package org.example.cloudstorage.minio.impl;
 
 import io.minio.MinioClient;
-import org.example.cloudstorage.config.MinioConfig;
 import org.example.cloudstorage.config.MinioTestContainer;
-import org.example.cloudstorage.config.properties.MinioProperties;
 import org.example.cloudstorage.model.ObjectMetadata;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
@@ -16,27 +14,22 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ActiveProfiles
+@ActiveProfiles("test")
 @Testcontainers
 class MinioSearchServiceImplTest {
 
-    public static final String BUCKET_NAME = "user-files";
+    private static final String BUCKET_NAME = "user-files";
     private final MinioRepository minioRepository;
     private final MinioSearchServiceImpl minioSearchService;
 
     @Container
     static MinioTestContainer minioContainer = new MinioTestContainer();
 
-    MinioSearchServiceImplTest() throws Exception {
-        MinioProperties minioProperties = new MinioProperties();
-        minioProperties.setUrl(minioContainer.getUrl());
-        minioProperties.setAccessKey(minioContainer.getAccessKey());
-        minioProperties.setSecretKey(minioContainer.getSecretKey());
-        minioProperties.setBucketName(BUCKET_NAME);
-        MinioClient minioClient = new MinioConfig().minioClient(minioProperties);
-        this.minioRepository = new MinioRepository(minioClient, minioProperties.getBucketName());
-        this.minioSearchService = new MinioSearchServiceImpl(minioRepository, "$");
 
+    MinioSearchServiceImplTest() throws Exception {
+        MinioClient minioClient = minioContainer.getMinioClient(BUCKET_NAME);
+        this.minioRepository = new MinioRepository(minioClient, BUCKET_NAME);
+        this.minioSearchService = new MinioSearchServiceImpl(minioRepository, "$");
     }
 
     @Test
