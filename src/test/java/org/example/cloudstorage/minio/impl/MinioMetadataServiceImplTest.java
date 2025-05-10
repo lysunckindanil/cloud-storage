@@ -1,9 +1,11 @@
 package org.example.cloudstorage.minio.impl;
 
 import io.minio.MinioClient;
+import io.minio.messages.Item;
 import org.example.cloudstorage.config.MinioTestContainer;
 import org.example.cloudstorage.exception.minio.ResourceNotFoundMinioException;
 import org.example.cloudstorage.model.ObjectMetadata;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,8 +18,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
 @Testcontainers
@@ -91,7 +92,6 @@ class MinioMetadataServiceImplTest {
     void listFiles() {
         List<String> objects = List.of(
                 "$",
-                "user-2-files",
                 "user-2-files/$",
                 "user-2-files/folder1/$",
                 "user-2-files/folder1/file12.txt"
@@ -99,6 +99,22 @@ class MinioMetadataServiceImplTest {
         for (String object : objects) {
             minioRepository.createEmptyObject(object);
         }
+        List<ObjectMetadata> result = minioMetadataService.listFiles(
+                "user-2-files/", false
+        );
+        System.out.println(result);
+        assertEquals(1, result.size());
+        assertTrue(result.contains(new ObjectMetadata("user-2-files/folder1/", true, 0L)));
+    }
 
+
+    @BeforeEach
+    void setUp() {
+        clearBucket();
+    }
+
+    void clearBucket() {
+        var objects = minioRepository.getListObjects("/", true);
+        minioRepository.deleteObjects(objects.stream().map(Item::objectName).toList());
     }
 }

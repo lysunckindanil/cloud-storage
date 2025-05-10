@@ -78,6 +78,7 @@ public class PathUtils {
     }
 
     public static String normalizePathMinioCompatible(String path) {
+        if (path.isEmpty() || path.equals("/")) return "/";
         if (path.startsWith("/")) path = path.substring(1);
         return path.strip().replace(" ", "+").replace("//", "/");
     }

@@ -20,8 +20,6 @@ public class ResourceServiceImpl implements ResourceService {
 
     @Override
     public ResourceResponseDto get(String path, User user) {
-        if (path.isEmpty() || path.equals("/"))
-            return ResourceResponseDtoMapper.toDto(minioRepository.getResource(constructPath("/", user)));
         return ResourceResponseDtoMapper.toDto(minioRepository.getResource(constructPath(path, user)));
     }
 
@@ -45,7 +43,8 @@ public class ResourceServiceImpl implements ResourceService {
 
     @Override
     public List<ResourceResponseDto> search(String query, User user) {
-        return minioRepository.searchResources(constructPath("/", user), query).stream()
+        return minioRepository.searchResources(constructPath("/", user), query)
+                .stream()
                 .map(ResourceResponseDtoMapper::toDto)
                 .toList();
     }

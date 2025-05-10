@@ -1,6 +1,7 @@
 package org.example.cloudstorage.minio.impl;
 
 import io.minio.StatObjectResponse;
+import org.example.cloudstorage.exception.minio.InvalidPathMinioException;
 import org.example.cloudstorage.exception.minio.ResourceNotFoundMinioException;
 import org.example.cloudstorage.minio.MinioMetadataService;
 import org.example.cloudstorage.model.ObjectMetadata;
@@ -31,6 +32,7 @@ public class MinioMetadataServiceImpl implements MinioMetadataService {
 
     @Override
     public List<ObjectMetadata> listFiles(String path, boolean recursive) {
+        if (!path.endsWith("/")) throw new InvalidPathMinioException("Path must be a directory");
         if (!existsByPath(path)) throw new ResourceNotFoundMinioException("Folder is not found");
         return minioRepository.getListObjects(path, recursive)
                 .stream()
