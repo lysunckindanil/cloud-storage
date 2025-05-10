@@ -1,8 +1,8 @@
 package org.example.cloudstorage.config;
 
 import io.minio.MinioClient;
-import org.example.cloudstorage.minio.MinioRepository;
 import org.example.cloudstorage.minio.impl.HierarchicalMinioRepository;
+import org.example.cloudstorage.minio.impl.MinioRepository;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 

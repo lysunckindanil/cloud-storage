@@ -4,9 +4,9 @@ import io.minio.MinioClient;
 import org.example.cloudstorage.config.MinioConfig;
 import org.example.cloudstorage.config.MinioTestContainer;
 import org.example.cloudstorage.config.properties.MinioProperties;
-import org.example.cloudstorage.minio.MinioRepository;
-import org.example.cloudstorage.minio.ObjectMetadata;
+import org.example.cloudstorage.model.ObjectMetadata;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@ActiveProfiles
 @Testcontainers
 class MinioSearchServiceImplTest {
 

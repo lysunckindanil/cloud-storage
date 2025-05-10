@@ -1,9 +1,8 @@
 package org.example.cloudstorage.minio.impl;
 
 import io.minio.messages.Item;
-import org.example.cloudstorage.minio.MinioRepository;
 import org.example.cloudstorage.minio.MinioSearchService;
-import org.example.cloudstorage.minio.ObjectMetadata;
+import org.example.cloudstorage.model.ObjectMetadata;
 import org.example.cloudstorage.util.PathUtils;
 
 import java.util.ArrayList;
@@ -28,8 +27,8 @@ public class MinioSearchServiceImpl implements MinioSearchService {
         for (Item item : objects) {
             String objectName = item.objectName();
             if (objectName.equals(path + folderPostfix)) continue;
-            boolean isDir = false;
             String objectSimpleName;
+            boolean isDir = false;
 
             if (objectName.endsWith(folderPostfix)) {
                 objectSimpleName = PathUtils.getParentFromEndAtN(objectName, 1);

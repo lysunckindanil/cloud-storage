@@ -1,7 +1,9 @@
-package org.example.cloudstorage.minio;
+package org.example.cloudstorage.minio.impl;
 
 import io.minio.*;
 import io.minio.errors.ErrorResponseException;
+import io.minio.messages.DeleteError;
+import io.minio.messages.DeleteObject;
 import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
 import org.example.cloudstorage.exception.minio.InvalidPathMinioException;
@@ -105,20 +107,25 @@ public class MinioRepository {
         return uploadPath;
     }
 
-    public void deleteObject(String path) {
-        path = PathUtils.normalizePathMinioCompatible(path);
+    public void deleteObjects(List<String> objects) {
+        List<DeleteObject> forDelete = objects.stream()
+                .map(PathUtils::normalizePathMinioCompatible)
+                .map(DeleteObject::new)
+                .toList();
 
-        try {
-            String objectName = getObject(path).object();
-            minioClient.removeObject(
-                    RemoveObjectArgs.builder()
-                            .bucket(bucketName)
-                            .object(objectName)
-                            .build());
-        } catch (ResourceNotFoundMinioException e) {
-            throw new ResourceNotFoundMinioException("Resource not found", e);
-        } catch (Exception e) {
-            throw new MinioException(e);
+        Iterable<Result<DeleteError>> results =
+                minioClient.removeObjects(
+                        RemoveObjectsArgs.builder()
+                                .bucket(bucketName)
+                                .objects(forDelete)
+                                .build());
+
+        for (Result<DeleteError> result : results) {
+            try {
+                result.get();
+            } catch (Exception e) {
+                throw new MinioException(e);
+            }
         }
     }
 

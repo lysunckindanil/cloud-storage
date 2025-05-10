@@ -4,7 +4,6 @@ import io.minio.messages.Item;
 import lombok.extern.slf4j.Slf4j;
 import org.example.cloudstorage.exception.minio.MinioException;
 import org.example.cloudstorage.minio.MinioDownloadService;
-import org.example.cloudstorage.minio.MinioRepository;
 import org.example.cloudstorage.util.PathUtils;
 import org.springframework.core.io.InputStreamResource;
 

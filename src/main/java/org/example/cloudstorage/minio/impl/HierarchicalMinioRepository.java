@@ -2,7 +2,11 @@ package org.example.cloudstorage.minio.impl;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.example.cloudstorage.minio.*;
+import org.example.cloudstorage.minio.MinioDownloadService;
+import org.example.cloudstorage.minio.MinioManipulationService;
+import org.example.cloudstorage.minio.MinioMetadataService;
+import org.example.cloudstorage.minio.MinioSearchService;
+import org.example.cloudstorage.model.ObjectMetadata;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -10,11 +14,7 @@ import java.util.List;
 
 
 @Slf4j
-public class HierarchicalMinioRepository implements
-        MinioMetadataService,
-        MinioSearchService,
-        MinioDownloadService,
-        MinioManipulationService {
+public class HierarchicalMinioRepository {
 
     private static final String DEFAULT_FOLDER_POSTFIX = "$";
     @Getter
@@ -38,36 +38,43 @@ public class HierarchicalMinioRepository implements
         this.minioManipulationService = new MinioManipulationServiceImpl(minioRepository, folderPostfix);
     }
 
+
     public ObjectMetadata getResource(String path) {
         return minioMetadataService.getResource(path);
     }
+
 
     public List<ObjectMetadata> listFiles(String path, boolean recursive) {
         return minioMetadataService.listFiles(path, recursive);
     }
 
+
     public InputStreamResource downloadResource(String path) {
         return minioDownloadService.downloadResource(path);
     }
+
 
     public List<ObjectMetadata> searchResources(String path, String query) {
         return minioSearchService.searchResources(path, query);
     }
 
+
     public void uploadResource(String path, List<MultipartFile> files) {
-        minioManipulationService.uploadResource(path, files);
+        minioManipulationService.uploadResources(path, files);
     }
+
 
     public void deleteResource(String path) {
         minioManipulationService.deleteResource(path);
     }
 
+
     public ObjectMetadata moveResource(String from, String to) {
         return minioManipulationService.moveResource(from, to);
     }
 
-    @Override
+
     public void createEmptyDirectory(String path) {
-        minioManipulationService.createEmptyDirectory(path);
+        minioManipulationService.createEmptyDirectory(path, false);
     }
 }

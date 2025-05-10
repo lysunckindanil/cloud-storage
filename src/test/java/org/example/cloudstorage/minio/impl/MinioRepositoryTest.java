@@ -1,4 +1,4 @@
-package org.example.cloudstorage.minio;
+package org.example.cloudstorage.minio.impl;
 
 import io.minio.*;
 import io.minio.messages.Item;
@@ -14,16 +14,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
+@ActiveProfiles("test")
 @Testcontainers
 class MinioRepositoryTest {
 
@@ -192,18 +194,11 @@ class MinioRepositoryTest {
             "test/"
     })
     @DisplayName("deleteObject after deletion the object is not found")
-    void deleteObject(String objectName) throws Exception {
+    void deleteObjects(String objectName) throws Exception {
         createObject(objectName);
         assertEquals(objectName, minioRepository.getObject(objectName).object());
-        minioRepository.deleteObject(objectName);
+        minioRepository.deleteObjects(List.of(objectName));
         assertThrows(ResourceNotFoundMinioException.class, () -> minioRepository.getObject(objectName));
-    }
-
-    @Test
-    @DisplayName("deleteObject throws error if doesn't exist")
-    void deleteObject_doesntExist_ThrowsError() {
-        String objectName = "test.txt";
-        assertThrows(ResourceNotFoundMinioException.class, () -> minioRepository.deleteObject(objectName));
     }
 
     @ParameterizedTest

@@ -3,8 +3,7 @@ package org.example.cloudstorage.minio.impl;
 import io.minio.StatObjectResponse;
 import org.example.cloudstorage.exception.minio.ResourceNotFoundMinioException;
 import org.example.cloudstorage.minio.MinioMetadataService;
-import org.example.cloudstorage.minio.MinioRepository;
-import org.example.cloudstorage.minio.ObjectMetadata;
+import org.example.cloudstorage.model.ObjectMetadata;
 
 import java.util.List;
 
@@ -41,7 +40,7 @@ public class MinioMetadataServiceImpl implements MinioMetadataService {
     }
 
     private boolean existsByPath(String path) {
-        if (path.endsWith("/")) {
+        if (path.endsWith("/") || path.isEmpty()) {
             path = path + folderPostfix;
         }
         try {

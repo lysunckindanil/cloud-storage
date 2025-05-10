@@ -1,7 +1,7 @@
 package org.example.cloudstorage.mapper;
 
 import org.example.cloudstorage.dto.ResourceResponseDto;
-import org.example.cloudstorage.minio.ObjectMetadata;
+import org.example.cloudstorage.model.ObjectMetadata;
 import org.example.cloudstorage.model.ResourceType;
 import org.example.cloudstorage.util.PathUtils;
 
