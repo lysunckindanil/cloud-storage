@@ -1,9 +1,10 @@
-package org.example.cloudstorage.service;
+package org.example.cloudstorage.listener;
 
 import jakarta.persistence.PostPersist;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.cloudstorage.entity.User;
+import org.example.cloudstorage.service.DirectoryService;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -26,6 +27,5 @@ public class CreateInitialUserFolderEntityListener {
                 Thread.sleep(RETRY_TIMEOUT);
             }
         }
-
     }
 }

@@ -12,5 +12,5 @@ public interface MinioManipulationService {
 
     ResourceMetadata moveResource(String from, String to);
 
-    void createEmptyDirectory(String path, boolean ignoreExistence);
+    ResourceMetadata createEmptyDirectory(String path, boolean ignoreExistence);
 }

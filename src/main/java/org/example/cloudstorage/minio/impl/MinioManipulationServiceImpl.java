@@ -74,7 +74,7 @@ public class MinioManipulationServiceImpl implements MinioManipulationService {
     }
 
     @Override
-    public void createEmptyDirectory(String path, boolean ignoreExistence) {
+    public ResourceMetadata createEmptyDirectory(String path, boolean ignoreExistence) {
         if (!isDir(path))
             throw new InvalidPathMinioException("Path should be a directory");
 
@@ -85,6 +85,7 @@ public class MinioManipulationServiceImpl implements MinioManipulationService {
             minioRepository.createEmptyObject(p + folderPostfix);
         }
         minioRepository.createEmptyObject(path + folderPostfix);
+        return new ResourceMetadata(path, true, 0L);
     }
 
     private ResourceMetadata moveFile(String from, String to) {

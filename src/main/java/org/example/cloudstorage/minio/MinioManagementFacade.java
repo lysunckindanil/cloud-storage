@@ -71,7 +71,7 @@ public class MinioManagementFacade {
     }
 
 
-    public void createEmptyDirectory(String path) {
-        minioManipulationService.createEmptyDirectory(path, false);
+    public ResourceMetadata createEmptyDirectory(String path) {
+        return minioManipulationService.createEmptyDirectory(path, false);
     }
 }

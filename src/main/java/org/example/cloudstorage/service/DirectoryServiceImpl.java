@@ -27,8 +27,7 @@ public class DirectoryServiceImpl implements DirectoryService {
     @Override
     public ResourceResponseDto create(String path, User user) {
         String completePath = MinioUserPathUtils.constructPath(path, user);
-        minioRepository.createEmptyDirectory(completePath);
-        return ResourceResponseDtoMapper.toDto(completePath);
+        return ResourceResponseDtoMapper.toDto(minioRepository.createEmptyDirectory(completePath));
     }
 
     @Override
