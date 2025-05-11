@@ -2,7 +2,7 @@ package org.example.cloudstorage.minio.impl;
 
 import io.minio.messages.Item;
 import org.example.cloudstorage.minio.MinioSearchService;
-import org.example.cloudstorage.model.ObjectMetadata;
+import org.example.cloudstorage.model.ResourceMetadata;
 import org.example.cloudstorage.util.PathUtils;
 
 import java.util.ArrayList;
@@ -21,9 +21,9 @@ public class MinioSearchServiceImpl implements MinioSearchService {
 
 
     @Override
-    public List<ObjectMetadata> searchResources(String path, String query) {
+    public List<ResourceMetadata> searchResources(String path, String query) {
         List<Item> objects = minioRepository.getListObjects(path, true);
-        List<ObjectMetadata> result = new ArrayList<>();
+        List<ResourceMetadata> result = new ArrayList<>();
         for (Item item : objects) {
             String objectName = item.objectName();
             if (objectName.equals(path + folderPostfix)) continue;
@@ -38,7 +38,7 @@ public class MinioSearchServiceImpl implements MinioSearchService {
             }
 
             if (objectSimpleName.toLowerCase().contains(query.toLowerCase())) {
-                result.add(new ObjectMetadata(
+                result.add(new ResourceMetadata(
                         isDir ? objectName.substring(0, objectName.length() - folderPostfix.length()) : objectName,
                         isDir,
                         item.size()));

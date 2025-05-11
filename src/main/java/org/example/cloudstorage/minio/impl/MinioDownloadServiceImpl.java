@@ -61,6 +61,7 @@ public class MinioDownloadServiceImpl implements MinioDownloadService {
             } catch (Exception ex) {
                 log.error("Error occurred while downloading object as zip", ex);
             }
+            log.debug("Zip object downloaded successfully: {}", downloadPath);
         }).start();
 
         try {

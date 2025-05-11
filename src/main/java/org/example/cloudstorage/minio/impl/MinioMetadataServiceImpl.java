@@ -4,7 +4,7 @@ import io.minio.StatObjectResponse;
 import org.example.cloudstorage.exception.minio.InvalidPathMinioException;
 import org.example.cloudstorage.exception.minio.ResourceNotFoundMinioException;
 import org.example.cloudstorage.minio.MinioMetadataService;
-import org.example.cloudstorage.model.ObjectMetadata;
+import org.example.cloudstorage.model.ResourceMetadata;
 
 import java.util.List;
 
@@ -18,12 +18,12 @@ public class MinioMetadataServiceImpl implements MinioMetadataService {
     }
 
     @Override
-    public ObjectMetadata getResource(String path) {
+    public ResourceMetadata getResource(String path) {
         boolean isDir = isDir(path);
         StatObjectResponse statObject = minioRepository.getObject(
                 isDir ? path + folderPostfix : path
         );
-        return new ObjectMetadata(
+        return new ResourceMetadata(
                 isDir ? path : statObject.object(),
                 isDir,
                 statObject.size()
@@ -31,13 +31,13 @@ public class MinioMetadataServiceImpl implements MinioMetadataService {
     }
 
     @Override
-    public List<ObjectMetadata> listFiles(String path, boolean recursive) {
+    public List<ResourceMetadata> listFiles(String path, boolean recursive) {
         if (!isDir(path)) throw new InvalidPathMinioException("Path must be a directory");
         if (!existsByPath(path)) throw new ResourceNotFoundMinioException("Directory is not found");
         return minioRepository.getListObjects(path, recursive)
                 .stream()
                 .filter(item -> !item.objectName().endsWith(folderPostfix))
-                .map(item -> new ObjectMetadata(item.objectName(), item.isDir(), item.size()))
+                .map(item -> new ResourceMetadata(item.objectName(), item.isDir(), item.size()))
                 .toList();
     }
 

@@ -4,7 +4,7 @@ import io.minio.MinioClient;
 import io.minio.messages.Item;
 import org.example.cloudstorage.config.MinioTestContainer;
 import org.example.cloudstorage.exception.minio.ResourceNotFoundMinioException;
-import org.example.cloudstorage.model.ObjectMetadata;
+import org.example.cloudstorage.model.ResourceMetadata;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,16 +39,16 @@ class MinioMetadataServiceImplTest {
 
     private static Stream<Arguments> getResourceTestData() {
         return Stream.of(
-                Arguments.of("user-2-files/", new ObjectMetadata(
+                Arguments.of("user-2-files/", new ResourceMetadata(
                         "user-2-files/", true, 0L
                 )),
-                Arguments.of("user-2-files", new ObjectMetadata(
+                Arguments.of("user-2-files", new ResourceMetadata(
                         "user-2-files", false, 0L
                 )),
-                Arguments.of("user-2-files/folder1/file12.txt", new ObjectMetadata(
+                Arguments.of("user-2-files/folder1/file12.txt", new ResourceMetadata(
                         "user-2-files/folder1/file12.txt", false, 0L
                 )),
-                Arguments.of("user-2-files/folder1/", new ObjectMetadata(
+                Arguments.of("user-2-files/folder1/", new ResourceMetadata(
                         "user-2-files/folder1/", true, 0L
                 )));
     }
@@ -56,7 +56,7 @@ class MinioMetadataServiceImplTest {
     @ParameterizedTest
     @DisplayName("Correctly get resources by given path")
     @MethodSource("getResourceTestData")
-    void getResource(String input, ObjectMetadata expected) {
+    void getResource(String input, ResourceMetadata expected) {
         List<String> objects = List.of(
                 "$",
                 "user-2-files",
@@ -100,12 +100,12 @@ class MinioMetadataServiceImplTest {
         for (String object : objects) {
             minioRepository.createEmptyObject(object);
         }
-        List<ObjectMetadata> result = minioMetadataService.listFiles(
+        List<ResourceMetadata> result = minioMetadataService.listFiles(
                 "user-2-files/", false
         );
         assertEquals(2, result.size());
-        assertTrue(result.contains(new ObjectMetadata("user-2-files/folder1/", true, 0L)));
-        assertTrue(result.contains(new ObjectMetadata("user-2-files/file.txt", false, 0L)));
+        assertTrue(result.contains(new ResourceMetadata("user-2-files/folder1/", true, 0L)));
+        assertTrue(result.contains(new ResourceMetadata("user-2-files/file.txt", false, 0L)));
     }
 
 

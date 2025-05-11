@@ -1,9 +1,12 @@
 package org.example.cloudstorage.minio.impl;
 
 import io.minio.messages.Item;
-import org.example.cloudstorage.exception.minio.*;
+import org.example.cloudstorage.exception.minio.InvalidFileMinioException;
+import org.example.cloudstorage.exception.minio.InvalidPathMinioException;
+import org.example.cloudstorage.exception.minio.ResourceAlreadyExistsMinioException;
+import org.example.cloudstorage.exception.minio.ResourceNotFoundMinioException;
 import org.example.cloudstorage.minio.MinioManipulationService;
-import org.example.cloudstorage.model.ObjectMetadata;
+import org.example.cloudstorage.model.ResourceMetadata;
 import org.example.cloudstorage.util.PathUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,20 +44,16 @@ public class MinioManipulationServiceImpl implements MinioManipulationService {
         if (!existsByPath(path))
             throw new ResourceNotFoundMinioException("Resource does not exist");
 
-        try {
-            minioRepository.deleteObjects(
-                    minioRepository.getListObjects(path, true)
-                            .stream()
-                            .map(Item::objectName)
-                            .toList()
-            );
-        } catch (Exception e) {
-            throw new PartialDeletionMinioException("Failed to delete all resources", e);
-        }
+        minioRepository.deleteObjects(
+                minioRepository.getListObjects(path, true)
+                        .stream()
+                        .map(Item::objectName)
+                        .toList()
+        );
     }
 
     @Override
-    public ObjectMetadata moveResource(String from, String to) {
+    public ResourceMetadata moveResource(String from, String to) {
         if (from.equals(to))
             throw new InvalidPathMinioException("You cannot copy the object to the place where it currently locates");
 
@@ -88,7 +87,7 @@ public class MinioManipulationServiceImpl implements MinioManipulationService {
         minioRepository.createEmptyObject(path + folderPostfix);
     }
 
-    private ObjectMetadata moveFile(String from, String to) {
+    private ResourceMetadata moveFile(String from, String to) {
         if (existsByPath(to))
             throw new ResourceAlreadyExistsMinioException("Destination file already exists");
         if (!existsByPath(from))
@@ -97,10 +96,10 @@ public class MinioManipulationServiceImpl implements MinioManipulationService {
         minioRepository.copy(from, to);
         minioRepository.deleteObjects(List.of(from));
         createMissingDirectories(List.of(to), "");
-        return new ObjectMetadata(to, false, minioRepository.getObject(to).size());
+        return new ResourceMetadata(to, false, minioRepository.getObject(to).size());
     }
 
-    private ObjectMetadata moveDirectory(String from, String to) {
+    private ResourceMetadata moveDirectory(String from, String to) {
         if (!existsByPath(from))
             throw new ResourceNotFoundMinioException("Source directory does not exist");
         if (existsByPath(to))
@@ -121,7 +120,7 @@ public class MinioManipulationServiceImpl implements MinioManipulationService {
             throw e;
         }
         minioRepository.deleteObjects(objects);
-        return new ObjectMetadata(to, true, 0L);
+        return new ResourceMetadata(to, true, 0L);
     }
 
     private boolean existsByPath(String path) {

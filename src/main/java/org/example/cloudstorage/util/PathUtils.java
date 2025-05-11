@@ -16,6 +16,29 @@ public class PathUtils {
     private static final Pattern VALID_PATH_PATTERN =
             Pattern.compile("^[a-zA-Zа-яА-Я0-9!\\-_.*'()/+ ]+$");
 
+    public static boolean isPathValid(String path) {
+        if (path == null) {
+            throw new IllegalArgumentException("Path cannot be null");
+        }
+
+        if (path.isEmpty() || path.equals("/"))
+            return true;
+
+        if (path.length() > 1024) {
+            return false;
+        }
+
+        if (!VALID_PATH_PATTERN.matcher(path).matches()) {
+            return false;
+        }
+
+        if (path.contains("//")) {
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * <h3>Returns breadcrumb for file or directory path</h3>
      *
@@ -58,30 +81,39 @@ public class PathUtils {
         }
     }
 
-    public static boolean isPathValid(String path) {
-        if (path.isEmpty() || path.equals("/"))
-            return true;
-
-        if (path.length() > 1024) {
-            return false;
-        }
-
-        if (!VALID_PATH_PATTERN.matcher(path).matches()) {
-            return false;
-        }
-
-        if (path.contains("//")) {
-            return false;
-        }
-
-        return true;
-    }
-
+    /**
+     * <h3>Normalizes path as minio compatible</h3>
+     * <h6>Examples</h6>
+     * <ul>
+     * <li>{@code normalizePathMinioCompatible("/path") -> "path"}</li>
+     * <li>{@code normalizePathMinioCompatible("//path//file") -> "path/file"}</li>
+     * <li>{@code normalizePathMinioCompatible("path/name of file") -> "path/name+of+file"}</li>
+     * </ul>
+     *
+     * @param path path to normalize
+     * @return normalized path
+     */
     public static String normalizePathMinioCompatible(String path) {
         if (path.startsWith("/")) path = path.substring(1);
         return path.strip().replace(" ", "+").replace("//", "/");
     }
 
+    /**
+     * <h3>Returns parent at given place from the end</h3>
+     * <h6>Examples</h6>
+     * <ul>
+     * <li>{@code getParentFromEndAtN("n1/n2/n3/", 0) -> "n3"}</li>
+     * <li>{@code getParentFromEndAtN("n1/n2/n3/", 1) -> "n2"}</li>
+     * <li>{@code getParentFromEndAtN("n1/n2/n3/", 2) -> "n1"}</li>
+     * <li>{@code getParentFromEndAtN("n1/n2/n3", 0) -> "n1"}</li>
+     * <li>{@code getParentFromEndAtN("n1,n2,n3/", 3) -> IllegalArgumentException}</li>
+     * </ul>
+     *
+     * @param path directory where to search parent
+     * @param n    number of parent from the end
+     * @return parent name at given place
+     * @throws IllegalArgumentException if path and n are not compatible
+     */
     public static String getParentFromEndAtN(String path, int n) {
         Path p = Paths.get(path);
         if (n >= p.getNameCount())
@@ -90,16 +122,28 @@ public class PathUtils {
         return p.subpath(p.getNameCount() - n - 1, p.getNameCount() - n).toString();
     }
 
+    /**
+     * <h3>Returns nested directories of the path</h3>
+     * <h6>Examples</h6>
+     * <ul>
+     * <li>{@code getNestedDirectories("", "n1/n2/n3/") -> {"n1/n2/","n1/"}}</li>
+     * <li>{@code getNestedDirectories("n1/", "n1/n2/n3/") -> "n1/n2"}</li>
+     * </ul>
+     *
+     * @param path     directory where to search nested dirs
+     * @param basePath to skip dirs inside basePath
+     * @return list of nested dirs
+     */
     public static List<String> getNestedDirectories(String basePath, String path) {
-        List<String> result = new ArrayList<>();
         if (!path.contains("/"))
             return List.of();
 
+        List<String> result = new ArrayList<>();
         String[] dirNames = path.substring(0, path.lastIndexOf("/")).split("/");
-        StringJoiner dirToCreate = new StringJoiner("/");
+        StringJoiner nestedDirs = new StringJoiner("/");
         for (String dir : dirNames) {
-            dirToCreate.add(dir);
-            result.add(basePath + dirToCreate + "/");
+            nestedDirs.add(dir);
+            result.add(basePath + nestedDirs + "/");
         }
         return result;
     }

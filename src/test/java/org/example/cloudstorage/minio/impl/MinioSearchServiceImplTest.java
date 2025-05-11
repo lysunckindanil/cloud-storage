@@ -2,7 +2,7 @@ package org.example.cloudstorage.minio.impl;
 
 import io.minio.MinioClient;
 import org.example.cloudstorage.config.MinioTestContainer;
-import org.example.cloudstorage.model.ObjectMetadata;
+import org.example.cloudstorage.model.ResourceMetadata;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Container;
@@ -41,25 +41,25 @@ class MinioSearchServiceImplTest {
         minioRepository.createEmptyObject("folder/Minio/$");
         minioRepository.createEmptyObject("folder/Minio/File.txt");
 
-        List<ObjectMetadata> result0 = minioSearchService.searchResources("", "txt");
-        List<ObjectMetadata> result1 = minioSearchService.searchResources("", "folder");
-        List<ObjectMetadata> result2 = minioSearchService.searchResources("folder/", "folder");
-        List<ObjectMetadata> result3 = minioSearchService.searchResources("folder/", "txt");
-        List<ObjectMetadata> result4 = minioSearchService.searchResources("folder/", "minio");
-        List<ObjectMetadata> result5 = minioSearchService.searchResources("folder/Minio", "file");
+        List<ResourceMetadata> result0 = minioSearchService.searchResources("", "txt");
+        List<ResourceMetadata> result1 = minioSearchService.searchResources("", "folder");
+        List<ResourceMetadata> result2 = minioSearchService.searchResources("folder/", "folder");
+        List<ResourceMetadata> result3 = minioSearchService.searchResources("folder/", "txt");
+        List<ResourceMetadata> result4 = minioSearchService.searchResources("folder/", "minio");
+        List<ResourceMetadata> result5 = minioSearchService.searchResources("folder/Minio", "file");
 
         assertTrue(areListsEqualIgnoringOrder(
                 List.of(
-                        new ObjectMetadata("folder/File.txt", false, 0L),
-                        new ObjectMetadata("folder/Foo.txt", false, 0L),
-                        new ObjectMetadata("folder/Minio.txt", false, 0L),
-                        new ObjectMetadata("folder/Minio/File.txt", false, 0L)
+                        new ResourceMetadata("folder/File.txt", false, 0L),
+                        new ResourceMetadata("folder/Foo.txt", false, 0L),
+                        new ResourceMetadata("folder/Minio.txt", false, 0L),
+                        new ResourceMetadata("folder/Minio/File.txt", false, 0L)
                 ),
                 result0));
 
         assertTrue(areListsEqualIgnoringOrder(
                 List.of(
-                        new ObjectMetadata("folder/", true, 0L)
+                        new ResourceMetadata("folder/", true, 0L)
                 ),
                 result1));
 
@@ -69,23 +69,23 @@ class MinioSearchServiceImplTest {
 
         assertTrue(areListsEqualIgnoringOrder(
                 List.of(
-                        new ObjectMetadata("folder/File.txt", false, 0L),
-                        new ObjectMetadata("folder/Foo.txt", false, 0L),
-                        new ObjectMetadata("folder/Minio.txt", false, 0L),
-                        new ObjectMetadata("folder/Minio/File.txt", false, 0L)
+                        new ResourceMetadata("folder/File.txt", false, 0L),
+                        new ResourceMetadata("folder/Foo.txt", false, 0L),
+                        new ResourceMetadata("folder/Minio.txt", false, 0L),
+                        new ResourceMetadata("folder/Minio/File.txt", false, 0L)
                 ),
                 result3));
 
         assertTrue(areListsEqualIgnoringOrder(
                 List.of(
-                        new ObjectMetadata("folder/Minio.txt", false, 0L),
-                        new ObjectMetadata("folder/Minio/", true, 0L)
+                        new ResourceMetadata("folder/Minio.txt", false, 0L),
+                        new ResourceMetadata("folder/Minio/", true, 0L)
                 ),
                 result4));
 
         assertTrue(areListsEqualIgnoringOrder(
                 List.of(
-                        new ObjectMetadata("folder/Minio/File.txt", false, 0L)
+                        new ResourceMetadata("folder/Minio/File.txt", false, 0L)
                 ),
                 result5));
     }

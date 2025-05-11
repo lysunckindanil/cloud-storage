@@ -28,7 +28,7 @@ public class GlobalExceptionAdvice {
 
     @ExceptionHandler(PartialDeletionMinioException.class)
     public ProblemDetail handlePartialDeletionMinioException(PartialDeletionMinioException e) {
-        log.debug("PartialDeletionMinioException.", e.getCause());
+        log.error("PartialDeletionMinioException.", e.getCause());
         return wrapToProblemDetail(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -46,32 +46,33 @@ public class GlobalExceptionAdvice {
 
     @ExceptionHandler(MinioException.class)
     public ProblemDetail handleMinioException(MinioException e) {
-        log.error("MinIO operation failed: {}", e.getMessage());
-        log.debug("Full error details", e);
-        return wrapToProblemDetail("Internal Server Error (Minio)", HttpStatus.INTERNAL_SERVER_ERROR);
+        log.error("MinIO operation failed: {}", e.getMessage(), e);
+        return wrapToProblemDetail("Internal server error with storage happened", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ProblemDetail handleConstraintViolationException(ConstraintViolationException e) {
+        log.debug("ConstraintViolationException", e);
         return wrapToProblemDetail(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ProblemDetail handleMissingParameterException(MissingServletRequestParameterException e) {
+        log.debug("MissingServletRequestParameterException", e);
         return wrapToProblemDetail("Request parameter is missing: %s".formatted(e.getParameterName()),
                 HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
     public ProblemDetail handleNoResourceFoundException(NoResourceFoundException e) {
+        log.debug("NoResourceFoundException", e);
         return wrapToProblemDetail("Resource was not found: %s".formatted(e.getResourcePath()),
                 HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleInternalServerError(Exception e) {
-        log.error("Undefined exception occurred: {}", e.getMessage());
-        log.debug("Full error details", e);
+        log.error("Undefined exception occurred", e);
         return wrapToProblemDetail("Internal server error happened: %s".formatted(e.getClass()),
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }

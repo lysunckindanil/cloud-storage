@@ -1,11 +1,11 @@
 package org.example.cloudstorage.minio;
 
-import org.example.cloudstorage.model.ObjectMetadata;
+import org.example.cloudstorage.model.ResourceMetadata;
 
 import java.util.List;
 
 public interface MinioMetadataService {
-    ObjectMetadata getResource(String path);
+    ResourceMetadata getResource(String path);
 
-    List<ObjectMetadata> listFiles(String path, boolean recursive);
+    List<ResourceMetadata> listFiles(String path, boolean recursive);
 }
