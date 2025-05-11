@@ -52,7 +52,9 @@ public class SecurityConfig {
     }
 
     private void requestsMatchersConf(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry authorize) {
-        authorize.anyRequest().authenticated();
+        authorize
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                .anyRequest().authenticated();
     }
 
     private void exceptionHandlingConf(ExceptionHandlingConfigurer<HttpSecurity> handling) {

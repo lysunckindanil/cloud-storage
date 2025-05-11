@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -38,7 +40,7 @@ public class MinioDownloadServiceImpl implements MinioDownloadService {
         String downloadPath = PathUtils.normalizePathMinioCompatible(path);
 
         PipedOutputStream out = new PipedOutputStream();
-        new Thread(() -> {
+        Runnable downloadZip = () -> {
             try (ZipOutputStream zipOut = new ZipOutputStream(out)) {
                 for (Item item : minioRepository.getListObjects(downloadPath, true)) {
                     String objectName = item.objectName();
@@ -62,9 +64,11 @@ public class MinioDownloadServiceImpl implements MinioDownloadService {
                 log.error("Error occurred while downloading object as zip", ex);
             }
             log.debug("Zip object downloaded successfully: {}", downloadPath);
-        }).start();
+        };
 
-        try {
+        try (ExecutorService executorService = Executors.newCachedThreadPool()) {
+            executorService.execute(downloadZip);
+            executorService.shutdown();
             return new InputStreamResource(new PipedInputStream(out));
         } catch (IOException e) {
             throw new MinioException("Unable to download folder as zip", e);
