@@ -6,10 +6,7 @@ import io.minio.messages.DeleteError;
 import io.minio.messages.DeleteObject;
 import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
-import org.example.cloudstorage.exception.minio.InvalidPathMinioException;
-import org.example.cloudstorage.exception.minio.MinioException;
-import org.example.cloudstorage.exception.minio.ResourceAlreadyExistsMinioException;
-import org.example.cloudstorage.exception.minio.ResourceNotFoundMinioException;
+import org.example.cloudstorage.exception.minio.*;
 import org.example.cloudstorage.util.PathUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -124,7 +121,7 @@ public class MinioRepository {
             try {
                 result.get();
             } catch (Exception e) {
-                throw new MinioException(e);
+                throw new PartialDeletionMinioException("Failed to delete all resources", e);
             }
         }
     }

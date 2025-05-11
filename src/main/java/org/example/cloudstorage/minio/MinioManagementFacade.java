@@ -3,7 +3,7 @@ package org.example.cloudstorage.minio;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.example.cloudstorage.minio.impl.*;
-import org.example.cloudstorage.model.ObjectMetadata;
+import org.example.cloudstorage.model.ResourceMetadata;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,12 +36,12 @@ public class MinioManagementFacade {
     }
 
 
-    public ObjectMetadata getResource(String path) {
+    public ResourceMetadata getResource(String path) {
         return minioMetadataService.getResource(path);
     }
 
 
-    public List<ObjectMetadata> listFiles(String path, boolean recursive) {
+    public List<ResourceMetadata> listFiles(String path, boolean recursive) {
         return minioMetadataService.listFiles(path, recursive);
     }
 
@@ -51,7 +51,7 @@ public class MinioManagementFacade {
     }
 
 
-    public List<ObjectMetadata> searchResources(String path, String query) {
+    public List<ResourceMetadata> searchResources(String path, String query) {
         return minioSearchService.searchResources(path, query);
     }
 
@@ -66,7 +66,7 @@ public class MinioManagementFacade {
     }
 
 
-    public ObjectMetadata moveResource(String from, String to) {
+    public ResourceMetadata moveResource(String from, String to) {
         return minioManipulationService.moveResource(from, to);
     }
 
