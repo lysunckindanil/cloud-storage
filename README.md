@@ -22,8 +22,7 @@
    docker compose up -d
    ```
 
-
-### Kubernetes
+### Kubernetes (api only)
 
 #### Setup
 
@@ -34,5 +33,6 @@
    kubectl apply -f k8s/cloud-storage-config.yaml
    kubectl apply -f k8s/cloud-storage-postgres.yaml
    kubectl apply -f k8s/cloud-storage-redis.yaml
+   kubectl apply -f k8s/cloud-storage-minio.yaml
    kubectl apply -f k8s/cloud-storage-app.yaml
    ```

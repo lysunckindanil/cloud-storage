@@ -27,6 +27,18 @@ spec:
               value: cloud-storage-postgres
             - name: REDIS_HOST
               value: cloud-storage-redis
+            - name: MINIO_HOST
+              value: cloud-storage-minio
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: cloud-storage-secrets
+                  key: MINIO_ROOT_USER
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cloud-storage-secrets
+                  key: MINIO_ROOT_PASSWORD
 ---
 apiVersion: v1
 kind: Service
