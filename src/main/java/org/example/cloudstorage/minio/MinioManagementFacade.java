@@ -1,11 +1,8 @@
-package org.example.cloudstorage.minio.impl;
+package org.example.cloudstorage.minio;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.example.cloudstorage.minio.MinioDownloadService;
-import org.example.cloudstorage.minio.MinioManipulationService;
-import org.example.cloudstorage.minio.MinioMetadataService;
-import org.example.cloudstorage.minio.MinioSearchService;
+import org.example.cloudstorage.minio.impl.*;
 import org.example.cloudstorage.model.ObjectMetadata;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,7 +11,7 @@ import java.util.List;
 
 
 @Slf4j
-public class HierarchicalMinioRepository {
+public class MinioManagementFacade {
 
     private static final String DEFAULT_FOLDER_POSTFIX = "$";
     @Getter
@@ -25,11 +22,11 @@ public class HierarchicalMinioRepository {
     private final MinioMetadataService minioMetadataService;
     private final MinioManipulationService minioManipulationService;
 
-    public HierarchicalMinioRepository(MinioRepository minioRepository) {
+    public MinioManagementFacade(MinioRepository minioRepository) {
         this(minioRepository, DEFAULT_FOLDER_POSTFIX);
     }
 
-    public HierarchicalMinioRepository(MinioRepository minioRepository, String folderPostfix) {
+    public MinioManagementFacade(MinioRepository minioRepository, String folderPostfix) {
         if (folderPostfix == null) throw new IllegalArgumentException("folderPostfix cannot be null");
         this.folderPostfix = folderPostfix;
         this.minioMetadataService = new MinioMetadataServiceImpl(minioRepository, folderPostfix);

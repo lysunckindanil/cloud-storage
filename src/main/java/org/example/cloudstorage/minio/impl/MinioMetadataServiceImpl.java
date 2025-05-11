@@ -32,8 +32,8 @@ public class MinioMetadataServiceImpl implements MinioMetadataService {
 
     @Override
     public List<ObjectMetadata> listFiles(String path, boolean recursive) {
-        if (!path.endsWith("/")) throw new InvalidPathMinioException("Path must be a directory");
-        if (!existsByPath(path)) throw new ResourceNotFoundMinioException("Folder is not found");
+        if (!isDir(path)) throw new InvalidPathMinioException("Path must be a directory");
+        if (!existsByPath(path)) throw new ResourceNotFoundMinioException("Directory is not found");
         return minioRepository.getListObjects(path, recursive)
                 .stream()
                 .filter(item -> !item.objectName().endsWith(folderPostfix))
@@ -49,6 +49,6 @@ public class MinioMetadataServiceImpl implements MinioMetadataService {
     }
 
     private boolean isDir(String path) {
-        return path.endsWith("/") || path.isEmpty();
+        return path.endsWith("/");
     }
 }

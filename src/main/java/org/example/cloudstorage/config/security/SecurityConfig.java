@@ -46,7 +46,6 @@ public class SecurityConfig {
     private void logoutConf(LogoutConfigurer<HttpSecurity> http) {
         http
                 .logoutUrl("/auth/sign-out")
-                .permitAll(false)
                 .logoutSuccessHandler((
                         (request, response, authentication)
                                 -> response.setStatus(HttpServletResponse.SC_NO_CONTENT)));

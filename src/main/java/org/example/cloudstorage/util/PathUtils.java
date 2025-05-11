@@ -59,7 +59,7 @@ public class PathUtils {
     }
 
     public static boolean isPathValid(String path) {
-        if (path.isEmpty())
+        if (path.isEmpty() || path.equals("/"))
             return true;
 
         if (path.length() > 1024) {
@@ -78,7 +78,6 @@ public class PathUtils {
     }
 
     public static String normalizePathMinioCompatible(String path) {
-        if (path.isEmpty() || path.equals("/")) return "/";
         if (path.startsWith("/")) path = path.substring(1);
         return path.strip().replace(" ", "+").replace("//", "/");
     }

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.cloudstorage.dto.ResourceResponseDto;
 import org.example.cloudstorage.entity.User;
 import org.example.cloudstorage.mapper.ResourceResponseDtoMapper;
-import org.example.cloudstorage.minio.impl.HierarchicalMinioRepository;
+import org.example.cloudstorage.minio.MinioManagementFacade;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,7 +16,7 @@ import static org.example.cloudstorage.util.MinioUserPathUtils.constructPath;
 @Service
 @RequiredArgsConstructor
 public class ResourceServiceImpl implements ResourceService {
-    private final HierarchicalMinioRepository minioRepository;
+    private final MinioManagementFacade minioRepository;
 
     @Override
     public ResourceResponseDto get(String path, User user) {

@@ -7,6 +7,7 @@ import org.example.cloudstorage.config.RedisContainerConfig;
 import org.example.cloudstorage.dto.user.UserLoginRequest;
 import org.example.cloudstorage.dto.user.UserRegisterRequest;
 import org.example.cloudstorage.entity.User;
+import org.example.cloudstorage.service.DirectoryService;
 import org.example.cloudstorage.service.UserService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -21,6 +22,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Transactional
 class AuthenticationValidationTest {
+
     @Autowired
     private ObjectMapper mapper;
 
@@ -48,6 +51,9 @@ class AuthenticationValidationTest {
 
     @Autowired
     MockMvc mvc;
+
+    @MockitoBean
+    DirectoryService directoryService;
 
     static class Stub {
         static final String USERNAME = "username";

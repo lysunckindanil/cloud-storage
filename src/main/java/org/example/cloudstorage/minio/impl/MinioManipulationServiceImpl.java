@@ -1,10 +1,7 @@
 package org.example.cloudstorage.minio.impl;
 
 import io.minio.messages.Item;
-import org.example.cloudstorage.exception.minio.InvalidFileMinioException;
-import org.example.cloudstorage.exception.minio.InvalidPathMinioException;
-import org.example.cloudstorage.exception.minio.ResourceAlreadyExistsMinioException;
-import org.example.cloudstorage.exception.minio.ResourceNotFoundMinioException;
+import org.example.cloudstorage.exception.minio.*;
 import org.example.cloudstorage.minio.MinioManipulationService;
 import org.example.cloudstorage.model.ObjectMetadata;
 import org.example.cloudstorage.util.PathUtils;
@@ -44,12 +41,16 @@ public class MinioManipulationServiceImpl implements MinioManipulationService {
         if (!existsByPath(path))
             throw new ResourceNotFoundMinioException("Resource does not exist");
 
-        minioRepository.deleteObjects(
-                minioRepository.getListObjects(path, true)
-                        .stream()
-                        .map(Item::objectName)
-                        .toList()
-        );
+        try {
+            minioRepository.deleteObjects(
+                    minioRepository.getListObjects(path, true)
+                            .stream()
+                            .map(Item::objectName)
+                            .toList()
+            );
+        } catch (Exception e) {
+            throw new PartialDeletionMinioException("Failed to delete all resources", e);
+        }
     }
 
     @Override
@@ -57,8 +58,11 @@ public class MinioManipulationServiceImpl implements MinioManipulationService {
         if (from.equals(to))
             throw new InvalidPathMinioException("You cannot copy the object to the place where it currently locates");
 
-        boolean fromIsDirectory = from.endsWith("/") || from.isEmpty();
-        boolean toIsDirectory = to.endsWith("/") || to.isEmpty();
+        boolean fromIsDirectory = isDir(from);
+        boolean toIsDirectory = isDir(to);
+
+        from = PathUtils.normalizePathMinioCompatible(from);
+        to = PathUtils.normalizePathMinioCompatible(to);
 
         if (fromIsDirectory && toIsDirectory) {
             return moveDirectory(from, to);
@@ -72,8 +76,8 @@ public class MinioManipulationServiceImpl implements MinioManipulationService {
 
     @Override
     public void createEmptyDirectory(String path, boolean ignoreExistence) {
-        if (!path.endsWith("/") && !path.isEmpty())
-            throw new InvalidPathMinioException("Directory path should end with slash");
+        if (!isDir(path))
+            throw new InvalidPathMinioException("Path should be a directory");
 
         if (existsByPath(path) && !ignoreExistence)
             throw new ResourceAlreadyExistsMinioException("Directory already exists");
@@ -103,25 +107,25 @@ public class MinioManipulationServiceImpl implements MinioManipulationService {
             throw new ResourceAlreadyExistsMinioException("Destination directory already exists");
 
         List<String> copiedFiles = new ArrayList<>();
-        List<Item> objects = minioRepository.getListObjects(from, true);
-
+        List<String> objects = minioRepository.getListObjects(from, true)
+                .stream().map(Item::objectName)
+                .toList();
         try {
-            for (Item item : objects) {
-                String toPath = to + item.objectName().substring(from.length());
-                minioRepository.copy(item.objectName(), toPath);
+            for (String objectName : objects) {
+                String toPath = to + objectName.substring(from.length());
+                minioRepository.copy(objectName, toPath);
                 copiedFiles.add(toPath);
             }
-            createMissingDirectories(copiedFiles, "");
         } catch (Exception e) {
             rollbackCreatedObjects(copiedFiles, e);
             throw e;
         }
-        minioRepository.deleteObjects(objects.stream().map(Item::objectName).toList());
+        minioRepository.deleteObjects(objects);
         return new ObjectMetadata(to, true, 0L);
     }
 
     private boolean existsByPath(String path) {
-        if (path.endsWith("/") || path.isEmpty()) {
+        if (isDir(path)) {
             return !minioRepository.getListObjects(path + folderPostfix, false).isEmpty();
         }
         return !minioRepository.getListObjects(path, false).isEmpty();
@@ -141,5 +145,9 @@ public class MinioManipulationServiceImpl implements MinioManipulationService {
                 createEmptyDirectory(nestedDirectory, true);
             }
         }
+    }
+
+    private boolean isDir(String path) {
+        return path.endsWith("/");
     }
 }

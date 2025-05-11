@@ -205,7 +205,7 @@ class MinioManipulationServiceImplTest {
                                 "folder1/folder2/$",
                                 "folder1/folder2/file21.txt"
                         )),
-                Arguments.of("", "folder3/",
+                Arguments.of("/", "folder3/",
                         List.of(
                                 "folder3/$",
                                 "folder3/folder1/$",
@@ -242,7 +242,6 @@ class MinioManipulationServiceImplTest {
                         .stream()
                         .map(Item::objectName)
                         .toList();
-        System.out.println(actual);
         assertTrue(areListsEqualIgnoringOrder(expected, actual));
     }
 
@@ -279,10 +278,8 @@ class MinioManipulationServiceImplTest {
         return Stream.of(
                 Arguments.of("file.txt", "file.txt"),
                 Arguments.of("folder/", "folder/"),
-                Arguments.of("", "file.txt"),
                 Arguments.of("folder/", "file.txt"),
-                Arguments.of("file.txt", "folder/"),
-                Arguments.of("file.txt", "")
+                Arguments.of("file.txt", "folder/")
         );
     }
 
@@ -300,9 +297,8 @@ class MinioManipulationServiceImplTest {
     private static Stream<Arguments> createEmptyDirectoryTestData() {
         return Stream.of(
                 Arguments.of("folder/", List.of("folder/$")),
-                Arguments.of("folder/", List.of("folder/$")),
                 Arguments.of("folder1/folder2/", List.of("folder1/$", "folder1/folder2/$")),
-                Arguments.of("", List.of("$"))
+                Arguments.of("/", List.of("$"))
         );
     }
 
@@ -312,11 +308,11 @@ class MinioManipulationServiceImplTest {
     void createEmptyDirectory(String input, List<String> expected) {
         minioManipulationService.createEmptyDirectory(input, false);
         List<String> actual =
-                minioRepository.getListObjects("", true)
+                minioRepository.getListObjects("/", true)
                         .stream()
                         .map(Item::objectName)
                         .toList();
-
+        System.out.println(actual);
         assertTrue(areListsEqualIgnoringOrder(expected, actual));
     }
 

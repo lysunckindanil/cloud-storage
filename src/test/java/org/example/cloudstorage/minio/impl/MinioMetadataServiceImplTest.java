@@ -93,6 +93,7 @@ class MinioMetadataServiceImplTest {
         List<String> objects = List.of(
                 "$",
                 "user-2-files/$",
+                "user-2-files/file.txt",
                 "user-2-files/folder1/$",
                 "user-2-files/folder1/file12.txt"
         );
@@ -102,9 +103,9 @@ class MinioMetadataServiceImplTest {
         List<ObjectMetadata> result = minioMetadataService.listFiles(
                 "user-2-files/", false
         );
-        System.out.println(result);
-        assertEquals(1, result.size());
+        assertEquals(2, result.size());
         assertTrue(result.contains(new ObjectMetadata("user-2-files/folder1/", true, 0L)));
+        assertTrue(result.contains(new ObjectMetadata("user-2-files/file.txt", false, 0L)));
     }
 
 

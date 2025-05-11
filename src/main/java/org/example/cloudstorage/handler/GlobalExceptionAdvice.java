@@ -16,32 +16,31 @@ public class GlobalExceptionAdvice {
 
     @ExceptionHandler(InvalidPathMinioException.class)
     public ProblemDetail handleInvalidPathMinioException(InvalidPathMinioException e) {
-        log.debug("MinioException", e);
-        return wrapToProblemDetail("Provided invalid path", HttpStatus.BAD_REQUEST);
+        log.debug("InvalidPathMinioException", e);
+        return wrapToProblemDetail(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(InvalidFileMinioException.class)
     public ProblemDetail handleInvalidFileMinioException(InvalidFileMinioException e) {
-        log.debug("MinioException", e);
+        log.debug("InvalidFileMinioException", e);
         return wrapToProblemDetail(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(PartialDeletionMinioException.class)
     public ProblemDetail handlePartialDeletionMinioException(PartialDeletionMinioException e) {
-        log.debug("MinioException", e);
-        return wrapToProblemDetail("Failed to delete some of the files", HttpStatus.INTERNAL_SERVER_ERROR);
+        log.debug("PartialDeletionMinioException.", e.getCause());
+        return wrapToProblemDetail(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
 
     @ExceptionHandler(ResourceNotFoundMinioException.class)
     public ProblemDetail handleResourceNotFoundMinioException(ResourceNotFoundMinioException e) {
-        log.debug("MinioException", e);
-        return wrapToProblemDetail("Provided path does not relate to any resource", HttpStatus.NOT_FOUND);
+        log.debug("ResourceNotFoundMinioException", e);
+        return wrapToProblemDetail(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ResourceAlreadyExistsMinioException.class)
     public ProblemDetail handleResourceAlreadyExistsMinioException(ResourceAlreadyExistsMinioException e) {
-        log.debug("MinioException", e);
+        log.debug("ResourceAlreadyExistsMinioException", e);
         return wrapToProblemDetail(e.getMessage(), HttpStatus.CONFLICT);
     }
 
@@ -65,7 +64,7 @@ public class GlobalExceptionAdvice {
 
     @ExceptionHandler(NoResourceFoundException.class)
     public ProblemDetail handleNoResourceFoundException(NoResourceFoundException e) {
-        return wrapToProblemDetail("Resource Not Found: %s".formatted(e.getResourcePath()),
+        return wrapToProblemDetail("Resource was not found: %s".formatted(e.getResourcePath()),
                 HttpStatus.NOT_FOUND);
     }
 
@@ -73,7 +72,7 @@ public class GlobalExceptionAdvice {
     public ProblemDetail handleInternalServerError(Exception e) {
         log.error("Undefined exception occurred: {}", e.getMessage());
         log.debug("Full error details", e);
-        return wrapToProblemDetail("Internal Server Error: %s".formatted(e.getClass()),
+        return wrapToProblemDetail("Internal server error happened: %s".formatted(e.getClass()),
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

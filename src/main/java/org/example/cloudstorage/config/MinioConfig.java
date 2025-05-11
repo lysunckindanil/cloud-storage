@@ -5,7 +5,7 @@ import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import okhttp3.OkHttpClient;
 import org.example.cloudstorage.config.properties.MinioProperties;
-import org.example.cloudstorage.minio.impl.HierarchicalMinioRepository;
+import org.example.cloudstorage.minio.MinioManagementFacade;
 import org.example.cloudstorage.minio.impl.MinioRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,8 +21,8 @@ public class MinioConfig {
     public MinioClient minioClient(MinioProperties minioProperties) throws Exception {
         OkHttpClient httpClient = new OkHttpClient.Builder()
                 .connectTimeout(30, TimeUnit.SECONDS)
-                .writeTimeout(60, TimeUnit.SECONDS)
-                .readTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(30, TimeUnit.MINUTES)
+                .readTimeout(30, TimeUnit.MINUTES)
                 .build();
 
         var client = MinioClient.builder()
@@ -35,8 +35,8 @@ public class MinioConfig {
     }
 
     @Bean
-    public HierarchicalMinioRepository minioRepository(MinioClient minioClient, MinioProperties minioProperties) {
-        return new HierarchicalMinioRepository(new MinioRepository(minioClient, minioProperties.getBucketName()));
+    public MinioManagementFacade minioRepository(MinioClient minioClient, MinioProperties minioProperties) {
+        return new MinioManagementFacade(new MinioRepository(minioClient, minioProperties.getBucketName()));
     }
 
     private static void createBucketIfNotExists(MinioClient minioClient, String bucketName) throws Exception {
