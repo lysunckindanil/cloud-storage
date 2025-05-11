@@ -5,6 +5,8 @@ services:
     command: redis-server
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
 
   postgres:
     container_name: postgres
@@ -13,6 +15,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
   cloud-storage:
     image: zloymumu/cloud-storage:0.0.1-SNAPSHOT
@@ -39,6 +43,8 @@ services:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
 
   frontend:
     build: /frontend
@@ -47,3 +53,8 @@ services:
       - "80:80"
     environment:
       BACKEND_URL: http://cloud-storage:8080
+
+volumes:
+  redis_data:
+  postgres_data:
+  minio_data:

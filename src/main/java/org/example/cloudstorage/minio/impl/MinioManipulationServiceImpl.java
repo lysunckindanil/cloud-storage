@@ -30,9 +30,10 @@ public class MinioManipulationServiceImpl implements MinioManipulationService {
             for (MultipartFile file : files) {
                 if (file.getOriginalFilename() == null || file.getOriginalFilename().isEmpty())
                     throw new InvalidFileMinioException("File name should not be empty");
+
                 uploadedFiles.add(minioRepository.uploadObject(path, file, file.getOriginalFilename()));
             }
-            createMissingDirectories(uploadedFiles, path);
+            createMissingDirectories(uploadedFiles);
         } catch (Exception e) {
             rollbackCreatedObjects(uploadedFiles, e);
             throw e;
@@ -96,7 +97,7 @@ public class MinioManipulationServiceImpl implements MinioManipulationService {
 
         minioRepository.copy(from, to);
         minioRepository.deleteObjects(List.of(from));
-        createMissingDirectories(List.of(to), "");
+        createMissingDirectories(List.of(to));
         return new ResourceMetadata(to, false, minioRepository.getObject(to).size());
     }
 
@@ -139,9 +140,9 @@ public class MinioManipulationServiceImpl implements MinioManipulationService {
         }
     }
 
-    private void createMissingDirectories(List<String> paths, String basePath) {
+    private void createMissingDirectories(List<String> paths) {
         for (String path : paths) {
-            for (String nestedDirectory : PathUtils.getNestedDirectories(basePath, path)) {
+            for (String nestedDirectory : PathUtils.getNestedDirectories("", path)) {
                 createEmptyDirectory(nestedDirectory, true);
             }
         }
